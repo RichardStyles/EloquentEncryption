@@ -1,13 +1,14 @@
 <?php
 
-namespace RichardStyles\EloquentEncryption\Tests;
+namespace RichardStyles\EloquentEncryption\Tests\Unit;
 
 use Mockery;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Schema\Blueprint;
-use RichardStyles\EloquentEncryption\Schema\Grammars\MySqlGrammar;
+use RichardStyles\EloquentEncryption\Schema\Grammars\PostgresGrammar;
+use RichardStyles\EloquentEncryption\Tests\TestCase;
 
-class DatabaseMySqlSchemaGrammarTest extends TestCase
+class DatabasePostgresSchemaGrammarTest extends TestCase
 {
     public function tearDown(): void
     {
@@ -23,8 +24,8 @@ class DatabaseMySqlSchemaGrammarTest extends TestCase
         $connection = Mockery::mock(Connection::class);
 
         $this->assertEquals(
-            ['alter table `users` add `foo` blob not null'],
-            $blueprint->toSql($connection, new MySqlGrammar)
+            ['alter table "users" add column "foo" bytea not null'],
+            $blueprint->toSql($connection, new PostgresGrammar())
         );
     }
 }

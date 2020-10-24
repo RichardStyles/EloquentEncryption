@@ -12,4 +12,14 @@ class TestCase extends \Orchestra\Testbench\TestCase
             EloquentEncryptionServiceProvider::class,
         ];
     }
+
+    public function tearDown(): void
+    {
+        \Mockery::close();
+    }
+
+    protected function getEnvironmentSetUp($app)
+    {
+
+    }
 }

@@ -2,13 +2,14 @@
 
 namespace RichardStyles\EloquentEncryption;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Connection;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
+use Illuminate\Support\ServiceProvider;
 use RichardStyles\EloquentEncryption\Connection\MySqlConnection;
 use RichardStyles\EloquentEncryption\Connection\PostgresConnection;
 use RichardStyles\EloquentEncryption\Connection\SQLiteConnection;
-use Illuminate\Database\Schema\Blueprint;
+use RichardStyles\EloquentEncryption\Console\Commands\GenerateRsaKeys;
 use RichardStyles\EloquentEncryption\Schema\Grammars\SqlServerGrammar;
 
 class EloquentEncryptionServiceProvider extends ServiceProvider
@@ -18,36 +19,15 @@ class EloquentEncryptionServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        /*
-         * Optional methods to load your package assets
-         */
-        // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'eloquentencryption');
-        // $this->loadViewsFrom(__DIR__.'/../resources/views', 'eloquentencryption');
-        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        // $this->loadRoutesFrom(__DIR__.'/routes.php');
-
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/config.php' => config_path('eloquentencryption.php'),
+                __DIR__ . '/../config/eloquent_encryption.php' => config_path('eloquent_encryption.php'),
             ], 'config');
 
-            // Publishing the views.
-            /*$this->publishes([
-                __DIR__.'/../resources/views' => resource_path('views/vendor/eloquentencryption'),
-            ], 'views');*/
-
-            // Publishing assets.
-            /*$this->publishes([
-                __DIR__.'/../resources/assets' => public_path('vendor/eloquentencryption'),
-            ], 'assets');*/
-
-            // Publishing the translation files.
-            /*$this->publishes([
-                __DIR__.'/../resources/lang' => resource_path('lang/vendor/eloquentencryption'),
-            ], 'lang');*/
-
             // Registering package commands.
-            // $this->commands([]);
+            $this->commands([
+                GenerateRsaKeys::class,
+            ]);
         }
     }
 
@@ -78,7 +58,7 @@ class EloquentEncryptionServiceProvider extends ServiceProvider
         });
 
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'eloquentencryption');
+        $this->mergeConfigFrom(__DIR__ . '/../config/eloquent_encryption.php', 'eloquentencryption');
 
         // Register the main class to use with the facade
         $this->app->singleton('eloquentencryption', function () {
