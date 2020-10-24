@@ -1,4 +1,4 @@
-# Very short description of the package
+# Eloquent Encryption
 
 Encrypt/decrypt key fields of your eloquent models in the database.
 
