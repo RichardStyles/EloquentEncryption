@@ -45,7 +45,6 @@ class GenerateRsaKeysCommandTest extends TestCase
             ->expectsOutput('* If you reset your keys you will lose access to any encrypted data. *')
             ->expectsOutput('**********************************************************************')
             ->expectsQuestion('Do you wish to reset your encryption keys?', 'no')
-            ->expectsOutput('RSA Keys have not been overwritted')
             ->assertExitCode(0);
     }
 

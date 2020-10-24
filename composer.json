@@ -17,11 +17,11 @@
     ],
     "require": {
         "php": "^7.1",
-        "illuminate/support": "^6.0",
+        "illuminate/support": "^8.0",
         "phpseclib/phpseclib": "~2.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^4.0",
+        "orchestra/testbench": "^6.0",
         "phpunit/phpunit": "^8.0"
     },
     "autoload": {

@@ -45,19 +45,19 @@ class GenerateRsaKeys extends Command
         if(EloquentEncryptionFacade::exists()){
 
             $this->warn('Application RSA keys are already set');
-            $this->warn("**********************************************************************");
-            $this->warn("* If you reset your keys you will lose access to any encrypted data. *");
-            $this->warn("**********************************************************************");
+            $this->warn('**********************************************************************');
+            $this->warn('* If you reset your keys you will lose access to any encrypted data. *');
+            $this->warn('**********************************************************************');
             if ($this->confirm('Do you wish to reset your encryption keys?') === false) {
 
-                $this->info("RSA Keys have not been overwritted");
+                $this->info('RSA Keys have not been overwritten');
 
                 return;
             }
         }
 
-        $this->info("Creating RSA Keys for Application");
-        EloquentEncryptionFacade::makeEncryptionKeys();
+        $this->info('Creating RSA Keys for Application');
 
+        EloquentEncryptionFacade::makeEncryptionKeys();
     }
 }
