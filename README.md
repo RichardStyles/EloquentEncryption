@@ -16,6 +16,8 @@ Usually, you would use [Laravel's Encrypter](https://laravel.com/docs/8.x/encryp
 
 ## Installation
 
+This package requires Laravel 8.x or higher.
+
 You can install the package via composer:
 
 ```bash
