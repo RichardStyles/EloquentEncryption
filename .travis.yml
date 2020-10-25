@@ -1,9 +1,8 @@
 language: php
 
 php:
-  - 7.1
-  - 7.2
   - 7.3
+  - 7.4
 
 env:
   matrix:
@@ -11,11 +10,9 @@ env:
     - COMPOSER_FLAGS=""
 
 before_script:
-  - travis_retry composer self-update
-  - travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source
+    - composer self-update
+    - composer install --dev --prefer-source --no-interaction --quiet
 
 script:
-  - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
+  - vendor/bin/phpunit
 
-after_script:
-  - php vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover
