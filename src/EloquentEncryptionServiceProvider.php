@@ -2,15 +2,13 @@
 
 namespace RichardStyles\EloquentEncryption;
 
-use Illuminate\Database\Connection;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
+use Illuminate\Database\Schema\Grammars\Grammar;
+use Illuminate\Support\Fluent;
 use Illuminate\Support\ServiceProvider;
-use RichardStyles\EloquentEncryption\Connection\MySqlConnection;
-use RichardStyles\EloquentEncryption\Connection\PostgresConnection;
-use RichardStyles\EloquentEncryption\Connection\SQLiteConnection;
 use RichardStyles\EloquentEncryption\Console\Commands\GenerateRsaKeys;
-use RichardStyles\EloquentEncryption\Schema\Grammars\SqlServerGrammar;
+use RichardStyles\EloquentEncryption\Exceptions\UnknownGrammarClass;
 
 class EloquentEncryptionServiceProvider extends ServiceProvider
 {
@@ -36,21 +34,28 @@ class EloquentEncryptionServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        Connection::resolverFor('mysql', function ($connection, $database, $prefix, $config): MySqlConnection {
-            return new MySqlConnection($connection, $database, $prefix, $config);
+        Grammar::macro('typeEncrypted', function (Fluent $column) {
+            $className = (new \ReflectionClass($this))->getShortName();
+
+            if ($className === "MySqlGrammar") {
+                return 'blob';
+            }
+
+            if ($className === "PostgresGrammar") {
+                return 'bytea';
+            }
+
+            if ($className === "SQLiteGrammar") {
+                return 'blob';
+            }
+
+            if ($className === "SqlServerGrammar") {
+                return 'varbinary(max)';
+            }
+
+            throw new UnknownGrammarClass;
         });
 
-        Connection::resolverFor('postgres', function ($connection, $database, $prefix, $config): PostgresConnection {
-            return new PostgresConnection($connection, $database, $prefix, $config);
-        });
-
-        Connection::resolverFor('sqlite', function ($connection, $database, $prefix, $config): SQLiteConnection {
-            return new SQLiteConnection($connection, $database, $prefix, $config);
-        });
-
-        Connection::resolverFor('sqlsrv', function ($connection, $database, $prefix, $config): SqlServerGrammar {
-            return new SqlServerGrammar($connection, $database, $prefix, $config);
-        });
 
         Blueprint::macro('encrypted', function ($column): ColumnDefinition {
             /** @var Blueprint $this */
