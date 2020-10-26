@@ -2,10 +2,10 @@
 
 namespace RichardStyles\EloquentEncryption\Tests\Unit;
 
+use Illuminate\Database\Schema\Grammars\MySqlGrammar;
 use Mockery;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Schema\Blueprint;
-use RichardStyles\EloquentEncryption\Schema\Grammars\MySqlGrammar;
 use RichardStyles\EloquentEncryption\Tests\TestCase;
 
 class DatabaseMySqlSchemaGrammarTest extends TestCase

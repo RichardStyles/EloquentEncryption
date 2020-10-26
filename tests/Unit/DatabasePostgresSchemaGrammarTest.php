@@ -2,10 +2,10 @@
 
 namespace RichardStyles\EloquentEncryption\Tests\Unit;
 
+use Illuminate\Database\Schema\Grammars\PostgresGrammar;
 use Mockery;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Schema\Blueprint;
-use RichardStyles\EloquentEncryption\Schema\Grammars\PostgresGrammar;
 use RichardStyles\EloquentEncryption\Tests\TestCase;
 
 class DatabasePostgresSchemaGrammarTest extends TestCase
@@ -25,7 +25,7 @@ class DatabasePostgresSchemaGrammarTest extends TestCase
 
         $this->assertEquals(
             ['alter table "users" add column "foo" bytea not null'],
-            $blueprint->toSql($connection, new PostgresGrammar())
+            $blueprint->toSql($connection, new PostgresGrammar)
         );
     }
 }

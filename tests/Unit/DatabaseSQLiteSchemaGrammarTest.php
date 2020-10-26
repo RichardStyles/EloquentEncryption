@@ -2,10 +2,10 @@
 
 namespace RichardStyles\EloquentEncryption\Tests\Unit;
 
+use Illuminate\Database\Schema\Grammars\SQLiteGrammar;
 use Mockery;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Schema\Blueprint;
-use RichardStyles\EloquentEncryption\Schema\Grammars\SQLiteGrammar;
 use RichardStyles\EloquentEncryption\Tests\TestCase;
 
 class DatabaseSQLiteSchemaGrammarTest extends TestCase
