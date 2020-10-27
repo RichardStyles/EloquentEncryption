@@ -6,7 +6,6 @@ namespace RichardStyles\EloquentEncryption\Casts;
 
 use Illuminate\Database\Eloquent\JsonEncodingException;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Collection as BaseCollection;
 
 class EncryptedCollection extends Encrypted
 {
@@ -21,7 +20,7 @@ class EncryptedCollection extends Encrypted
      */
     public function get($model, $key, $value, $attributes)
     {
-        return new BaseCollection(json_decode(parent::get($model, $key, $value, $attributes)));
+        return new Collection(json_decode(parent::get($model, $key, $value, $attributes)));
     }
 
     /**
