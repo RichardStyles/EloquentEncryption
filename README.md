@@ -61,8 +61,11 @@ This package leverages Laravel's own [custom casting](https://laravel.com/docs/8
 
 namespace App\Models;
 
-use RichardStyles\EloquentEncryption\Casts\Encrypted;
 use Illuminate\Database\Eloquent\Model;
+use RichardStyles\EloquentEncryption\Casts\Encrypted;
+use RichardStyles\EloquentEncryption\Casts\EncryptedInteger;
+use RichardStyles\EloquentEncryption\Casts\EncryptedFloat;
+use RichardStyles\EloquentEncryption\Casts\EncryptedCollection;
 
 class SalesData extends Model
 {
@@ -73,10 +76,15 @@ class SalesData extends Model
      */
     protected $casts = [
         'private_data' => Encrypted::class,
+        'private_int' => EncryptedInteger::class,
+        'private_float' => EncryptedFloat::class,
+        'prvate_collection' => EncryptedCollection::class,
     ];
 }
 
 ```
+
+There are additional casts which will cast the decrypted value into a specific data type. If there is not one that you need, simply make a PR including sufficient testing.
 
 ### Testing
 
