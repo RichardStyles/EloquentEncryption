@@ -46,7 +46,7 @@ class EncryptedCollection extends Encrypted
                 );
             }
         }
-        dd($value);
+
         return parent::set($model, $key, $value, $attributes);
     }
 }
