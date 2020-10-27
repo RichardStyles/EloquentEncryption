@@ -24,14 +24,8 @@ You can install the package via composer:
 composer require richardstyles/eloquentencryption
 ```
 
-Register the service provider in your `config/app.php` configuration file, this is needed for the migration helper.
-
-```php
-'providers' => [
-    ...
-    RichardStyles\EloquentEncryption\EloquentEncryptionServiceProvider::class,
-],
-```
+You do not need to register the ServiceProvider as this package uses Laravel Package auto discovery.
+The Migration blueprint helpers are added using macros, so do not affect the schema files.
 
 The configuration can be published using this command, if you need to change the RSA key size, storage path and key file names.
 
@@ -39,7 +33,7 @@ The configuration can be published using this command, if you need to change the
 php artisan vendor:publish --provider="RichardStyles\EloquentEncryption\EloquentEncryptionServiceProvider" --tag="config"
 ```
 
-In order to encrypt and decrypt data you need to generate RSA keys for this package. By default, this will create 4096-bit RSA keys to your `storage/` directory.
+In order to encrypt and decrypt data you need to generate RSA keys for this package. By default, this will create 4096-bit RSA keys to your `storage/` directory. **Do not add these to version control** and backup accordingly.
 
 ```bash
 php artisan encrypt:generate
