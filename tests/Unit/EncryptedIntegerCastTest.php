@@ -49,13 +49,13 @@ class EncryptedIntegerCastTest extends TestCase
             ->shouldReceive('exists')
             ->andReturn(true)
             ->shouldReceive('encrypt')
-            ->with('110011001100')
+            ->with(110011001100)
             ->andReturn('001100110011');
 
         $cast = new EncryptedInteger();
 
         $user = new User();
 
-        $this->assertEquals('001100110011', $cast->set($user, 'encrypted', '110011001100', []));
+        $this->assertEquals('001100110011', $cast->set($user, 'encrypted', 110011001100, []));
     }
 }
