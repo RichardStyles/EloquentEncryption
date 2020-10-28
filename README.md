@@ -78,7 +78,7 @@ class SalesData extends Model
         'private_data' => Encrypted::class,
         'private_int' => EncryptedInteger::class,
         'private_float' => EncryptedFloat::class,
-        'prvate_collection' => EncryptedCollection::class,
+        'private_collection' => EncryptedCollection::class,
     ];
 }
 
