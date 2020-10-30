@@ -3,15 +3,14 @@
 namespace RichardStyles\EloquentEncryption;
 
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Storage;
 use phpseclib\Crypt\RSA;
 use RichardStyles\EloquentEncryption\Contracts\RsaKeyHandler;
+use RichardStyles\EloquentEncryption\Exceptions\InvalidRsaKeyHandler;
 use RichardStyles\EloquentEncryption\Exceptions\RSAKeyFileMissing;
 use RichardStyles\EloquentEncryption\FileSystem\RsaKeyStorageHandler;
 
 class EloquentEncryption
 {
-
 
     /**
      * @var RsaKeyHandler
@@ -26,6 +25,10 @@ class EloquentEncryption
         $this->handler = app()->make(
             Config::get('eloquent_encryption.handler', RsaKeyStorageHandler::class)
         );
+
+        if(!$this->handler instanceof RsaKeyHandler){
+            throw new InvalidRsaKeyHandler;
+        }
     }
 
     /**

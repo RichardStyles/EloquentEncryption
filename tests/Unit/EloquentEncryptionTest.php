@@ -2,12 +2,10 @@
 
 namespace RichardStyles\EloquentEncryption\Tests\Unit;
 
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
-use phpseclib\Crypt\RSA;
 use RichardStyles\EloquentEncryption\EloquentEncryption;
+use RichardStyles\EloquentEncryption\Exceptions\InvalidRsaKeyHandler;
 use RichardStyles\EloquentEncryption\Exceptions\RSAKeyFileMissing;
 use RichardStyles\EloquentEncryption\Tests\TestCase;
 use RichardStyles\EloquentEncryption\Tests\Traits\WithRSAHelpers;
@@ -103,5 +101,18 @@ class EloquentEncryptionTest extends TestCase
         $this->assertEquals($toEncrypt, $decrypted);
     }
 
+    /** @test */
+    function an_invalid_rsa_key_handler_throws_exception()
+    {
+        Config::set('eloquent_encryption.handler', BadRsaKeyHandler::class);
 
+        $this->expectException(InvalidRsaKeyHandler::class);
+
+        $eloquent_encryption = new EloquentEncryption();
+    }
+}
+
+class BadRsaKeyHandler
+{
+    public $foo;
 }

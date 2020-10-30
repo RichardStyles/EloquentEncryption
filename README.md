@@ -86,6 +86,21 @@ class SalesData extends Model
 
 There are additional casts which will cast the decrypted value into a specific data type. If there is not one that you need, simply make a PR including sufficient testing.
 
+### Custom RSA Key Storage
+
+If you want to store your RSA key another way, such as using [Hashicorp Vault](https://www.vaultproject.io/). From 1.4 you can change the config option `handler` to a specific class which uses the `RsaKeyHandler` contract.
+By default, this package uses a storage handler, which saves the generated key pair to `storage/` and retrieved the contents of the keys when encryption or decryption are processed. This is something that should be considered as it could add latency to your application.
+
+```php
+    /**
+     * This class can be overridden to define how the RSA keys are stored, checked for
+     * existence and returned for Encryption and Decryption. This allows for keys to
+     * be held in secure Vaults or through another provider.
+     */
+    'handler' => \RichardStyles\EloquentEncryption\FileSystem\RsaKeyStorageHandler::class,
+```
+
+
 ### Testing
 
 ``` bash
