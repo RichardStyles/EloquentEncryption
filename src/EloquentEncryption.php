@@ -5,34 +5,27 @@ namespace RichardStyles\EloquentEncryption;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use phpseclib\Crypt\RSA;
+use RichardStyles\EloquentEncryption\Contracts\RsaKeyHandler;
 use RichardStyles\EloquentEncryption\Exceptions\RSAKeyFileMissing;
+use RichardStyles\EloquentEncryption\FileSystem\RsaKeyStorageHandler;
 
 class EloquentEncryption
 {
 
-    /**
-     * Storage path for the Public Key File
-     *
-     * @var string
-     */
-    private $public_key_path;
 
     /**
-     * Storage path for the Private Key File
-     *
-     * @var string
+     * @var RsaKeyHandler
      */
-    private $private_key_path;
+    private $handler;
 
     /**
      * ApplicationKey constructor.
      */
     public function __construct()
     {
-        $this->public_key_path =
-            Config::get('eloquent_encryption.key.public', 'eloquent_encryption.pub');
-        $this->private_key_path =
-            Config::get('eloquent_encryption.key.private', 'eloquent_encryption');
+        $this->handler = app()->make(
+            Config::get('eloquent_encryption.handler', RsaKeyStorageHandler::class)
+        );
     }
 
     /**
@@ -42,27 +35,7 @@ class EloquentEncryption
      */
     public function exists()
     {
-        return $this->hasPrivateKey() && $this->hasPublicKey();
-    }
-
-    /**
-     * A Private key file exists
-     *
-     * @return bool
-     */
-    protected function hasPrivateKey()
-    {
-        return Storage::exists($this->private_key_path);
-    }
-
-    /**
-     * A Public key file exists
-     *
-     * @return bool
-     */
-    protected function hasPublicKey()
-    {
-        return Storage::exists($this->public_key_path);
+        return $this->handler->exists();
     }
 
     /**
@@ -71,7 +44,7 @@ class EloquentEncryption
     public function makeEncryptionKeys()
     {
         $key = $this->createKey(Config::get('eloquent_encryption.key.email'));
-        $this->saveKey($key['publickey'], $key['privatekey']);
+        $this->handler->saveKey($key['publickey'], $key['privatekey']);
     }
 
     /**
@@ -87,18 +60,6 @@ class EloquentEncryption
         $rsa->setComment($email);
 
         return $rsa->createKey(Config::get('eloquent_encryption.key.length', 4096));
-    }
-
-    /**
-     * Save the generated RSA key to the storage location
-     *
-     * @param $public
-     * @param $private
-     */
-    public function saveKey($public, $private)
-    {
-        Storage::put($this->public_key_path, $public);
-        Storage::put($this->private_key_path, $private);
     }
 
     /**
@@ -125,7 +86,7 @@ class EloquentEncryption
      */
     public function encrypt($value)
     {
-        return $this->getRsa($this->getPublicKey())
+        return $this->getRsa($this->handler->getPublicKey())
             ->encrypt($value);
     }
 
@@ -142,41 +103,14 @@ class EloquentEncryption
             return null;
         }
 
-        $rsa = new RSA();
-        $rsa->loadKey($this->getPrivateKey());
-        $rsa->setEncryptionMode(RSA::ENCRYPTION_OAEP);
-
-        return $this->getRsa($this->getPrivateKey())
+        return $this->getRsa($this->handler->getPrivateKey())
             ->decrypt($value);
     }
 
-    /**
-     * Get the contents of the public key file
-     *
-     * @return string
-     * @throws RSAKeyFileMissing
-     */
-    public function getPublicKey()
+    public function __call($name, $arguments)
     {
-        if (!$this->hasPublicKey()) {
-            throw new RSAKeyFileMissing();
+        if(method_exists($this->handler, $name)){
+            return $this->handler->{$name}($arguments);
         }
-
-        return Storage::get($this->public_key_path);
-    }
-
-    /**
-     * Get the contents of the private key file
-     *
-     * @return string
-     * @throws RSAKeyFileMissing
-     */
-    public function getPrivateKey()
-    {
-        if (!$this->hasPrivateKey()) {
-            throw new RSAKeyFileMissing();
-        }
-
-        return Storage::get($this->private_key_path);
     }
 }
