@@ -2,6 +2,12 @@
 
 All notable changes to `eloquentencryption` will be documented in this file
 
+## 1.4
+- Add optional support to define `RsaKeyHandler` to store, retrieved generated RSA keys.
+
+## 1.3
+- bug fix
+
 ## 1.2.0 
 - Add additional Cast classes.
 - `EncryptedInteger` 
