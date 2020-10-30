@@ -32,7 +32,7 @@ class EloquentEncryption
         $this->public_key_path =
             Config::get('eloquent_encryption.key.public', 'eloquent_encryption.pub');
         $this->private_key_path =
-            Config::get('eloquent_encryption.key.public', 'eloquent_encryption');
+            Config::get('eloquent_encryption.key.private', 'eloquent_encryption');
     }
 
     /**
