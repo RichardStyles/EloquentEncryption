@@ -2,6 +2,9 @@
 
 All notable changes to `eloquentencryption` will be documented in this file
 
+## 1.5
+- Add `EncryptedBoolean` cast by @valorin [#3](https://github.com/RichardStyles/EloquentEncryption/pull/3)
+
 ## 1.4
 - Add optional support to define `RsaKeyHandler` to store, retrieved generated RSA keys.
 
