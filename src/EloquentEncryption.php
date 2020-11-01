@@ -2,6 +2,7 @@
 
 namespace RichardStyles\EloquentEncryption;
 
+use Illuminate\Contracts\Encryption\Encrypter;
 use Illuminate\Support\Facades\Config;
 use phpseclib\Crypt\RSA;
 use RichardStyles\EloquentEncryption\Contracts\RsaKeyHandler;
@@ -9,7 +10,7 @@ use RichardStyles\EloquentEncryption\Exceptions\InvalidRsaKeyHandler;
 use RichardStyles\EloquentEncryption\Exceptions\RSAKeyFileMissing;
 use RichardStyles\EloquentEncryption\FileSystem\RsaKeyStorageHandler;
 
-class EloquentEncryption
+class EloquentEncryption implements Encrypter
 {
 
     /**
@@ -84,30 +85,60 @@ class EloquentEncryption
      * Encrypt a value using the RSA key
      *
      * @param $value
+     * @param bool $serialize
      * @return false|string
      * @throws RSAKeyFileMissing
      */
-    public function encrypt($value)
+    public function encrypt($value, $serialize = true)
     {
         return $this->getRsa($this->handler->getPublicKey())
-            ->encrypt($value);
+            ->encrypt($serialize ? serialize($value) : $value);
+    }
+
+    /**
+     * Encrypt a string without serialization.
+     *
+     * @param  string  $value
+     * @return string
+     *
+     * @throws RSAKeyFileMissing
+     */
+    public function encryptString($value)
+    {
+        return $this->encrypt($value, false);
     }
 
     /**
      * Decrypt a value using the RSA key
      *
      * @param $value
+     * @param  bool  $unserialize
      * @return false|string|null
      * @throws RSAKeyFileMissing
      */
-    public function decrypt($value)
+    public function decrypt($value, $unserialize = true)
     {
         if (empty($value)) {
             return null;
         }
 
-        return $this->getRsa($this->handler->getPrivateKey())
+        $decrypted = $this->getRsa($this->handler->getPrivateKey())
             ->decrypt($value);
+
+        return $unserialize ? unserialize($decrypted) : $decrypted;
+    }
+
+    /**
+     * Decrypt the given string without unserialization.
+     *
+     * @param  string  $payload
+     * @return string
+     *
+     * @throws RSAKeyFileMissing
+     */
+    public function decryptString($payload)
+    {
+        return $this->decrypt($payload, false);
     }
 
     public function __call($name, $arguments)

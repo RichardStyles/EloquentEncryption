@@ -16,7 +16,7 @@ class EncryptedIntegerCastTest extends TestCase
     {
         EloquentEncryptionFacade::shouldReceive('exists')
             ->andReturn(true)
-            ->shouldReceive('decrypt')
+            ->shouldReceive('decryptString')
             ->with('001100110011')
             ->andReturn('001100110011');
 
@@ -35,7 +35,7 @@ class EncryptedIntegerCastTest extends TestCase
         EloquentEncryptionFacade::partialMock()
             ->shouldReceive('exists')
             ->andReturn(true)
-            ->shouldReceive('encrypt')
+            ->shouldReceive('encryptString')
             ->with(110011001100)
             ->andReturn('001100110011');
 

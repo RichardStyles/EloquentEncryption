@@ -15,7 +15,7 @@ class EncryptedFloatCastTest extends TestCase
     {
         EloquentEncryptionFacade::shouldReceive('exists')
             ->andReturn(true)
-            ->shouldReceive('decrypt')
+            ->shouldReceive('decryptString')
             ->with('001100110011')
             ->andReturn('1.245');
 
@@ -34,7 +34,7 @@ class EncryptedFloatCastTest extends TestCase
         EloquentEncryptionFacade::partialMock()
             ->shouldReceive('exists')
             ->andReturn(true)
-            ->shouldReceive('encrypt')
+            ->shouldReceive('encryptString')
             ->with(1.245)
             ->andReturn('001100110011');
 
@@ -49,7 +49,7 @@ class EncryptedFloatCastTest extends TestCase
     {
         EloquentEncryptionFacade::shouldReceive('exists')
             ->andReturn(true)
-            ->shouldReceive('decrypt')
+            ->shouldReceive('decryptString')
             ->with('001100110011')
             ->andReturn(INF);
 

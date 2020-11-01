@@ -12,7 +12,9 @@ This package enables an additional layer of security when handling sensitive dat
 This open source package fulfils the need of encrypting selected model data in your database whilst allowing your app:key to be rotated. When needing to store private details this package allows for greater security than the default Laravel encrypter. 
 It uses default 4096-bit RSA keys to encrypt your data securely and Laravel model casting to dynamically encrypt and decrypt key fields. 
 
-Usually, you would use [Laravel's Encrypter](https://laravel.com/docs/8.x/encryption) to encrypt the data, but this has the limitation of using the `app:key` as the private secret. As the app key also secures session/cookie data, it is [advised that you rotate this every so often](https://tighten.co/blog/app-key-and-you/) - if you're storing encrypted data using this method you have to decrypt it all first and re-encrypt whenever this is done. Therefore this package improves on this by creating a separate and stronger encryption process allowing you to rotate the app:key. This allows for a greater level of security of sensitive model data within your Laravel application and your database.
+Usually, you would use [Laravel's Encrypter](https://laravel.com/docs/8.x/encryption) to encrypt the data, but this has the limitation of using the `app:key` as the private secret. As the app key also secures session/cookie data, it is [advised that you rotate this every so often](https://tighten.co/blog/app-key-and-you/) - if you're storing encrypted data using this method you have to decrypt it all first and re-encrypt whenever this is done. Therefore this package improves on this by creating a separate and stronger encryption process allowing you to rotate the app:key. This allows for a  level of security of sensitive model data within your Laravel application and your database.
+
+If you don't want to use RSA keys, then I have another package [Eloquent AES](https://github.com/RichardStyles/eloquent-aes) which uses a separate key `eloquent_key` to encrypt using AES-256-CBC.
 
 ## Installation
 
@@ -48,9 +50,12 @@ There is nothing special needed for this to function, simply declare a `encrypte
 Schema::create('sales_notes', function (Blueprint $table) {
     $table->increments('id');
     $table->encrypted('private_data');
+    $table->encrypted('optional_private_data')->nullable();
     $table->timestamps();
 });
 ```
+
+You can use any additional blueprint helpers, such as `->nullable()` if there is no initial data to encrypt. It is advised that `->index()` shouldn't normally be placed on these binary fields as you should not be querying against these, given they are encrypted.
 
 ## Usage
 
@@ -100,6 +105,9 @@ By default, this package uses a storage handler, which saves the generated key p
     'handler' => \RichardStyles\EloquentEncryption\FileSystem\RsaKeyStorageHandler::class,
 ```
 
+### Query Builder
+
+A significant caveat with storing encrypted data in the database, is that you are unable to use your database provider to query against the column. Should you need to do this, then please be aware of the extra overhead as all rows would need to be processed in a collection using [cursors](https://laravel.com/docs/8.x/eloquent#using-cursors) and [lazy collection methods](https://laravel.com/docs/8.x/collections#lazy-collection-methods).
 
 ### Testing
 

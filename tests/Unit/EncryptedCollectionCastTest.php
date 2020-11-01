@@ -18,6 +18,8 @@ class EncryptedCollectionCastTest extends TestCase
     {
         EloquentEncryptionFacade::shouldReceive('exists')
             ->andReturn(true)
+            ->shouldReceive('decryptString')
+            ->with('001100110011')
             ->shouldReceive('decrypt')
             ->with('001100110011')
             ->andReturn('{"test":"a","foo":"bar","bar":{"test":"result"}}');
@@ -43,7 +45,7 @@ class EncryptedCollectionCastTest extends TestCase
         EloquentEncryptionFacade::partialMock()
             ->shouldReceive('exists')
             ->andReturn(true)
-            ->shouldReceive('encrypt')
+            ->shouldReceive('encryptString')
             ->with('{"test":"a","foo":"bar","bar":{"test":"result"}}')
             ->andReturn('001100110011');
 

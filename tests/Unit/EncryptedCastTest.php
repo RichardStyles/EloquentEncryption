@@ -16,7 +16,7 @@ class EncryptedCastTest extends TestCase
     {
         EloquentEncryptionFacade::shouldReceive('exists')
             ->andReturn(true)
-            ->shouldReceive('decrypt')
+            ->shouldReceive('decryptString')
             ->with('001100110011')
             ->andReturn('test');
 
@@ -31,7 +31,7 @@ class EncryptedCastTest extends TestCase
     {
         EloquentEncryptionFacade::shouldReceive('exists')
             ->andReturn(true)
-            ->shouldReceive('encrypt')
+            ->shouldReceive('encryptString')
             ->with('test')
             ->andReturn('001100110011');
 

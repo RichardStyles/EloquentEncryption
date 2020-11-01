@@ -5,7 +5,12 @@ namespace RichardStyles\EloquentEncryption;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \RichardStyles\EloquentEncryption\Skeleton\SkeletonClass
+ * @method static mixed decrypt(string $payload, bool $unserialize = true)
+ * @method static string decryptString(string $payload)
+ * @method static string encrypt(mixed $value, bool $serialize = true)
+ * @method static string encryptString(string $value)
+ *
+ * @see \RichardStyles\EloquentEncryption\EloquentEncryption
  */
 class EloquentEncryptionFacade extends Facade
 {

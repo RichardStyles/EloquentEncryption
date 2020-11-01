@@ -19,7 +19,7 @@ class Encrypted implements CastsAttributes
      */
     public function get($model, $key, $value, $attributes)
     {
-        return EloquentEncryptionFacade::decrypt($value);
+        return EloquentEncryptionFacade::decryptString($value);
     }
 
     /**
@@ -33,6 +33,6 @@ class Encrypted implements CastsAttributes
      */
     public function set($model, $key, $value, $attributes)
     {
-        return EloquentEncryptionFacade::encrypt($value);
+        return EloquentEncryptionFacade::encryptString($value);
     }
 }
