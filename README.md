@@ -66,6 +66,7 @@ use RichardStyles\EloquentEncryption\Casts\Encrypted;
 use RichardStyles\EloquentEncryption\Casts\EncryptedInteger;
 use RichardStyles\EloquentEncryption\Casts\EncryptedFloat;
 use RichardStyles\EloquentEncryption\Casts\EncryptedCollection;
+use RichardStyles\EloquentEncryption\Casts\EncryptedBoolean;
 
 class SalesData extends Model
 {
@@ -79,6 +80,7 @@ class SalesData extends Model
         'private_int' => EncryptedInteger::class,
         'private_float' => EncryptedFloat::class,
         'private_collection' => EncryptedCollection::class,
+        'private_boolean' => EncryptedBoolean::class,
     ];
 }
 
