@@ -6,6 +6,9 @@ All notable changes to `eloquentencryption` will be documented in this file
 - EloquentEncryption now uses `Illuminate\Contracts\Encryption\Encrypter` contract.
 - **BC** If relying on 1.x use `encryptString()` or `decryptString()` functions **if you are using this encryption elsewhere in your application**. As the default encrypt/decrypt function now serialize values automatically, this may cause unexpected errors during decrypting.
 
+## 1.5
+- Add `EncryptedBoolean` cast by @valorin [#3](https://github.com/RichardStyles/EloquentEncryption/pull/3)
+
 ## 1.4
 - Add optional support to define `RsaKeyHandler` to store, retrieved generated RSA keys.
 
