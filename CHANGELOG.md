@@ -2,6 +2,29 @@
 
 All notable changes to `eloquentencryption` will be documented in this file
 
+## 3.0
+
+- As of **Laravel 8.14** you can specify the built in Eloquent Encryption casting setting a model's encryptUsing in your app service provider. This allows for automatic separation of your APP_KEY, when using a different `Illuminate\Contracts\Encryption\Encrypter` class/instance.
+ 
+```php
+EncryptedCast::encryptUsing(new \RichardStyles\EloquentEncryption\EloquentEncryption);
+```
+
+Then simply define your casts in your model as you normally would.
+
+```php
+class EncryptedCast extends Model
+{
+    public $casts = [
+        'secret' => 'encrypted',
+        'secret_array' => 'encrypted:array',
+        'secret_json' => 'encrypted:json',
+        'secret_object' => 'encrypted:object',
+        'secret_collection' => 'encrypted:collection',
+    ];
+}
+```
+
 ## 2.0
 - EloquentEncryption now uses `Illuminate\Contracts\Encryption\Encrypter` contract.
 - **BC** If relying on 1.x use `encryptString()` or `decryptString()` functions **if you are using this encryption elsewhere in your application**. As the default encrypt/decrypt function now serialize values automatically, this may cause unexpected errors during decrypting.
