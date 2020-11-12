@@ -19,6 +19,10 @@ class Encrypted implements CastsAttributes
      */
     public function get($model, $key, $value, $attributes)
     {
+        if(is_null($value)){
+            return null;
+        }
+
         return EloquentEncryptionFacade::decryptString($value);
     }
 
@@ -33,6 +37,10 @@ class Encrypted implements CastsAttributes
      */
     public function set($model, $key, $value, $attributes)
     {
+        if(is_null($value)){
+            return null;
+        }
+
         return EloquentEncryptionFacade::encryptString($value);
     }
 }

@@ -57,7 +57,37 @@ Schema::create('sales_notes', function (Blueprint $table) {
 
 You can use any additional blueprint helpers, such as `->nullable()` if there is no initial data to encrypt. It is advised that `->index()` shouldn't normally be placed on these binary fields as you should not be querying against these, given they are encrypted.
 
-## Usage
+## Usage 3.x
+
+As of version 3.x, the requirement for laravel is 8.14. This release added the `Model::encryptUsing()` static function to the base Eloquent Model. 
+This allows the built in process for encrypted casting to use any `Illuminate\Contracts\Encryption\Encrypter` class.
+
+**Please test with any existing keys and data before upgrading** 
+Otherwise your data may not be decrypted as expected. If you are on 2.x you should not see any issues as this version follows the Encrypter Contract required by the encryptUsing static function.
+
+In your AppServiceProvider 
+```php
+EncryptedCast::encryptUsing(new \RichardStyles\EloquentEncryption\EloquentEncryption);
+```
+
+Then on your models, use the built in encrypted casts as needed.
+
+```php
+class EncryptedCast extends Model
+{
+    public $casts = [
+        'secret' => 'encrypted',
+        'secret_array' => 'encrypted:array',
+        'secret_json' => 'encrypted:json',
+        'secret_object' => 'encrypted:object',
+        'secret_collection' => 'encrypted:collection',
+    ];
+}
+```
+
+This was made possible by a [PR](https://github.com/laravel/framework/pull/35080) to Laravel by [@hivokas](https://github.com/hivokas).
+
+## Usage 2.x
 
 This package leverages Laravel's own [custom casting](https://laravel.com/docs/8.x/eloquent-mutators#custom-casts) to encode/decode values. 
 
