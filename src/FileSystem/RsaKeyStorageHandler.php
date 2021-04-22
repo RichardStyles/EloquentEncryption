@@ -1,8 +1,6 @@
 <?php
 
-
 namespace RichardStyles\EloquentEncryption\FileSystem;
-
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
@@ -11,6 +9,12 @@ use RichardStyles\EloquentEncryption\Exceptions\RSAKeyFileMissing;
 
 class RsaKeyStorageHandler implements RsaKeyHandler
 {
+    /**
+     * Application Storage instance
+     *
+     * @var Storage $storage
+     */
+    private $storage;
 
     /**
      * Storage path for the Public Key File
@@ -31,10 +35,13 @@ class RsaKeyStorageHandler implements RsaKeyHandler
      */
     public function __construct()
     {
-        $this->public_key_path =
-            Config::get('eloquent_encryption.key.public', 'eloquent_encryption.pub');
-        $this->private_key_path =
-            Config::get('eloquent_encryption.key.private', 'eloquent_encryption');
+        $config = config('eloquent_encryption.key');
+
+        $this->storage = $this->storage->disk($config['store_disk']);
+
+        $this->public_key_path = $config['public'];
+
+        $this->private_key_path = $config['private'];
     }
 
     /**
@@ -54,7 +61,7 @@ class RsaKeyStorageHandler implements RsaKeyHandler
      */
     public function hasPrivateKey()
     {
-        return Storage::exists($this->private_key_path);
+        return $this->storage->exists($this->private_key_path);
     }
 
     /**
@@ -64,7 +71,7 @@ class RsaKeyStorageHandler implements RsaKeyHandler
      */
     public function hasPublicKey()
     {
-        return Storage::exists($this->public_key_path);
+        return $this->storage->exists($this->public_key_path);
     }
 
     /**
@@ -75,8 +82,8 @@ class RsaKeyStorageHandler implements RsaKeyHandler
      */
     public function saveKey($public, $private)
     {
-        Storage::put($this->public_key_path, $public);
-        Storage::put($this->private_key_path, $private);
+        $this->storage->put($this->public_key_path, $public);
+        $this->storage->put($this->private_key_path, $private);
     }
 
     /**
@@ -91,7 +98,7 @@ class RsaKeyStorageHandler implements RsaKeyHandler
             throw new RSAKeyFileMissing();
         }
 
-        return Storage::get($this->public_key_path);
+        return $this->storage->get($this->public_key_path);
     }
 
     /**
@@ -106,6 +113,6 @@ class RsaKeyStorageHandler implements RsaKeyHandler
             throw new RSAKeyFileMissing();
         }
 
-        return Storage::get($this->private_key_path);
+        return $this->storage->get($this->private_key_path);
     }
 }

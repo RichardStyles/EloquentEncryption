@@ -2,10 +2,14 @@
 
 All notable changes to `eloquentencryption` will be documented in this file
 
+## 3.1.0
+
+- Allow use of a custom Storage disk without extending RsaKeyStorageHandler class
+
 ## 3.0
 
 - As of **Laravel 8.14** you can specify the built in Eloquent Encryption casting setting a model's encryptUsing in your app service provider. This allows for automatic separation of your APP_KEY, when using a different `Illuminate\Contracts\Encryption\Encrypter` class/instance.
- 
+
 ```php
 EncryptedCast::encryptUsing(new \RichardStyles\EloquentEncryption\EloquentEncryption);
 ```
@@ -38,9 +42,9 @@ class EncryptedCast extends Model
 ## 1.3
 - bug fix
 
-## 1.2.0 
+## 1.2.0
 - Add additional Cast classes.
-- `EncryptedInteger` 
+- `EncryptedInteger`
 - `EncryptedFloat`
 - `EncryptedCollection`
 

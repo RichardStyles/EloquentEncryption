@@ -18,6 +18,11 @@ return [
         'store' => env('KEY_STORE', ''),
 
         /**
+         * A custom disk in Storage to be used. If null the default one is used.
+         */
+        'store_disk' => env('KEY_STORE_DISK'),
+
+        /**
          * The filename for the RSA public key
          */
         'public' => env('KEY_PUBLIC', 'eloquent_encryption.pub'),
