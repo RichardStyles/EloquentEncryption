@@ -12,7 +12,7 @@ class RsaKeyStorageHandler implements RsaKeyHandler
     /**
      * Application Storage instance
      *
-     * @var Storage $storage
+     * @var Illuminate\Contracts\Filesystem\Filesystem $storage
      */
     private $storage;
 
