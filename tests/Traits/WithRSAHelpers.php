@@ -33,28 +33,33 @@ trait WithRSAHelpers
         Storage::assertExists($private);
     }
 
-    public function makePrivateKey()
+    public function makePrivateKey($path = '', $disk = null)
     {
         return $this->makeKey(
-            '',
-            'eloquent_encryption'
+            $path,
+            'eloquent_encryption',
+            $disk
         );
     }
 
-    public function makePublicKey()
+    public function makePublicKey($path = '', $disk = null)
     {
         return $this->makeKey(
-            '',
-            'eloquent_encryption.pub'
+            $path,
+            'eloquent_encryption.pub',
+            $disk
         );
     }
 
-    private function makeKey($path, $key)
+    private function makeKey($path, $key, $disk = null)
     {
         // create fake files to act as both the rsa keys
         $file = UploadedFile::fake()->create($key, 250);
 
-        Storage::put($path.$key, $file);
+        Storage::disk($disk)->put(
+            trim($path, '/').'/'.$key,
+            $file
+        );
 
         return $key;
     }
