@@ -63,7 +63,7 @@ class EloquentEncryptionServiceProvider extends ServiceProvider
         });
 
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__ . '/../config/eloquent_encryption.php', 'eloquentencryption');
+        $this->mergeConfigFrom(__DIR__ . '/../config/eloquent_encryption.php', 'eloquent_encryption');
 
         // Register the main class to use with the facade
         $this->app->singleton('eloquentencryption', function () {
