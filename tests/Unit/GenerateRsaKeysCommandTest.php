@@ -57,8 +57,8 @@ class GenerateRsaKeysCommandTest extends TestCase
 
         $this->assertTrue(EloquentEncryptionFacade::exists());
 
-        $original_public = Storage::get(Config::get('eloquent_encryption.key.public', 'eloquent_encryption.pub'));
-        $original_private = Storage::get(Config::get('eloquent_encryption.key.public', 'eloquent_encryption'));
+        $original_public = Storage::get(Config::get('eloquent_encryption.key.public'));
+        $original_private = Storage::get(Config::get('eloquent_encryption.key.private'));
 
         $this->artisan('encrypt:generate')
             ->expectsOutput('Application RSA keys are already set')
@@ -69,8 +69,8 @@ class GenerateRsaKeysCommandTest extends TestCase
             ->expectsOutput('Creating RSA Keys for Application')
             ->assertExitCode(0);
 
-        $public = Storage::get(Config::get('eloquent_encryption.key.public', 'eloquent_encryption.pub'));
-        $private = Storage::get(Config::get('eloquent_encryption.key.public', 'eloquent_encryption'));
+        $public = Storage::get(Config::get('eloquent_encryption.key.public'));
+        $private = Storage::get(Config::get('eloquent_encryption.key.private'));
 
         $this->assertNotEquals($original_public, $public);
         $this->assertNotEquals($original_private, $private);

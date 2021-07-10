@@ -12,10 +12,15 @@ return [
         'length' => env('KEY_LENGTH', 4096),
 
         /**
+         * A custom disk in Storage to be used. If null the default one is used.
+         */
+        'store_disk' => env('KEY_STORE_DISK'),
+
+        /**
          * The path in Storage where the keys should be saved.
          * DO NOT SET THIS UNDER app/public or anywhere publicly accessible.
          */
-        'store' => env('KEY_STORE', ''),
+        'store_path' => env('KEY_STORE_PATH', ''),
 
         /**
          * The filename for the RSA public key

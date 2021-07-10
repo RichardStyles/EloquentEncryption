@@ -3,6 +3,7 @@
 
 namespace RichardStyles\EloquentEncryption\Tests\Unit;
 
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use RichardStyles\EloquentEncryption\Contracts\RsaKeyHandler;
 use RichardStyles\EloquentEncryption\EloquentEncryption;
@@ -75,5 +76,35 @@ class StorageHandlerTest extends TestCase
         $this->makePrivateKey();
 
         $this->assertTrue($this->handler->exists());
+    }
+
+    /** @test */
+    function storage_disk_can_be_customized_in_config()
+    {
+        $store_disk = 'test_disk';
+
+        Config::set(['eloquent_encryption.key.store_disk' => $store_disk]);
+        Storage::fake($store_disk);
+        
+        $handler = new RsaKeyStorageHandler();
+        
+        $this->makePrivateKey('', $store_disk);
+        $this->makePublicKey('', $store_disk);
+
+        $this->assertTrue($handler->exists());
+    }
+
+    /** @test */
+    function storage_path_can_be_customized_in_config()
+    {
+        $store_path = 'test_path/keys';
+        
+        Config::set(['eloquent_encryption.key.store_path' => $store_path]);
+        $handler = new RsaKeyStorageHandler();
+        
+        $this->makePrivateKey($store_path);
+        $this->makePublicKey($store_path);
+
+        $this->assertTrue($handler->exists());
     }
 }
