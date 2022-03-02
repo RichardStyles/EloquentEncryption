@@ -18,13 +18,13 @@
     ],
     "require": {
         "php": "^7.3|^8.0",
-        "illuminate/support": "^8.0",
-        "illuminate/database": "^8.14",
+        "illuminate/support": "^8.12",
+        "illuminate/database": "^8.40",
         "phpseclib/phpseclib": "~2.0"
     },
     "require-dev": {
         "orchestra/testbench": "^6.4",
-        "phpunit/phpunit": "^8.0"
+        "phpunit/phpunit": "^8.5.19|^9.5.8"
     },
     "autoload": {
         "psr-4": {
@@ -39,7 +39,6 @@
     "scripts": {
         "test": "vendor/bin/phpunit",
         "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
-
     },
     "config": {
         "sort-packages": true
