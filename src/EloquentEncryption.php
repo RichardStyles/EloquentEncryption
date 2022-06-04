@@ -27,7 +27,7 @@ class EloquentEncryption implements Encrypter
             Config::get('eloquent_encryption.handler', RsaKeyStorageHandler::class)
         );
 
-        if(!$this->handler instanceof RsaKeyHandler){
+        if (!$this->handler instanceof RsaKeyHandler) {
             throw new InvalidRsaKeyHandler;
         }
     }
@@ -98,7 +98,7 @@ class EloquentEncryption implements Encrypter
     /**
      * Encrypt a string without serialization.
      *
-     * @param  string  $value
+     * @param string $value
      * @return string
      *
      * @throws RSAKeyFileMissing
@@ -112,7 +112,7 @@ class EloquentEncryption implements Encrypter
      * Decrypt a value using the RSA key
      *
      * @param $value
-     * @param  bool  $unserialize
+     * @param bool $unserialize
      * @return false|string|null
      * @throws RSAKeyFileMissing
      */
@@ -131,7 +131,7 @@ class EloquentEncryption implements Encrypter
     /**
      * Decrypt the given string without unserialization.
      *
-     * @param  string  $payload
+     * @param string $payload
      * @return string
      *
      * @throws RSAKeyFileMissing
@@ -143,8 +143,18 @@ class EloquentEncryption implements Encrypter
 
     public function __call($name, $arguments)
     {
-        if(method_exists($this->handler, $name)){
+        if (method_exists($this->handler, $name)) {
             return $this->handler->{$name}($arguments);
         }
+    }
+
+    /**
+     * Get the encryption key that the encrypter is currently using.
+     *
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->handler->getPrivateKey();
     }
 }
