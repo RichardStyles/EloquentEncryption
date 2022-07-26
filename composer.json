@@ -17,9 +17,9 @@
         }
     ],
     "require": {
-        "php": "^7.3|^8.0",
-        "illuminate/support": "^8.12",
-        "illuminate/database": "^8.40",
+        "php": "^7.3|^8.0|^8.1",
+        "illuminate/support": "^8.12||^9",
+        "illuminate/database": "^8.40||^9",
         "phpseclib/phpseclib": "~2.0"
     },
     "require-dev": {

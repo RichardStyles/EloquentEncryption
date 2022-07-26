@@ -110,6 +110,15 @@ class EloquentEncryptionTest extends TestCase
 
         $eloquent_encryption = new EloquentEncryption();
     }
+
+    /** @test */
+    function get_key_returns_the_private_key()
+    {
+        $this->makePublicKey();
+        $this->makeRawKey('','eloquent_encryption','Super secret key');
+
+        $this->assertEquals('Super secret key', $this->eloquent_encryption->getKey());
+    }
 }
 
 class BadRsaKeyHandler

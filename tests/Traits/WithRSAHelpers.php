@@ -63,4 +63,10 @@ trait WithRSAHelpers
 
         return $key;
     }
+
+    protected function makeRawKey($path, $key, $contents)
+    {
+        Storage::put($path.$key, $contents);
+        return $key;
+    }
 }
