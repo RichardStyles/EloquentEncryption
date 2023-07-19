@@ -17,13 +17,13 @@
         }
     ],
     "require": {
-        "php": "^7.3|^8.0|^8.1|^8.2",
-        "illuminate/support": "^8.12||^9||^10.0",
-        "illuminate/database": "^8.40||^9||^10.0",
+        "php": "^8.0|^8.1|^8.2",
+        "illuminate/support": "^9||^10.0",
+        "illuminate/database": "^9||^10.0",
         "phpseclib/phpseclib": "~2.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^6.4",
+        "orchestra/testbench": "^7|^8",
         "phpunit/phpunit": "^8.5.19|^9.5.8"
     },
     "autoload": {

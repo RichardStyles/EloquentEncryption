@@ -3,7 +3,6 @@
 This package enables an additional layer of security when handling sensitive data. Allowing key fields of your eloquent models in the database to be encrypted at rest.
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/richardstyles/eloquentencryption.svg?style=flat-square)](https://packagist.org/packages/richardstyles/eloquentencryption)
-[![Build Status](https://img.shields.io/travis/richardstyles/eloquentencryption/master.svg?style=flat-square)](https://travis-ci.org/richardstyles/eloquentencryption)
 [![Quality Score](https://img.shields.io/scrutinizer/g/richardstyles/eloquentencryption.svg?style=flat-square)](https://scrutinizer-ci.com/g/richardstyles/eloquentencryption)
 [![Total Downloads](https://img.shields.io/packagist/dt/richardstyles/eloquentencryption.svg?style=flat-square)](https://packagist.org/packages/richardstyles/eloquentencryption)
 
@@ -12,13 +11,13 @@ This package enables an additional layer of security when handling sensitive dat
 This open source package fulfils the need of encrypting selected model data in your database whilst allowing your app:key to be rotated. When needing to store private details this package allows for greater security than the default Laravel encrypter. 
 It uses default 4096-bit RSA keys to encrypt your data securely and Laravel model casting to dynamically encrypt and decrypt key fields. 
 
-Usually, you would use [Laravel's Encrypter](https://laravel.com/docs/8.x/encryption) to encrypt the data, but this has the limitation of using the `app:key` as the private secret. As the app key also secures session/cookie data, it is [advised that you rotate this every so often](https://tighten.co/blog/app-key-and-you/) - if you're storing encrypted data using this method you have to decrypt it all first and re-encrypt whenever this is done. Therefore this package improves on this by creating a separate and stronger encryption process allowing you to rotate the app:key. This allows for a  level of security of sensitive model data within your Laravel application and your database.
+Usually, you would use [Laravel's Encrypter](https://laravel.com/docs/9.x/encryption) to encrypt the data, but this has the limitation of using the `app:key` as the private secret. As the app key also secures session/cookie data, it is [advised that you rotate this every so often](https://tighten.co/blog/app-key-and-you/) - if you're storing encrypted data using this method you have to decrypt it all first and re-encrypt whenever this is done. Therefore this package improves on this by creating a separate and stronger encryption process allowing you to rotate the app:key. This allows for a  level of security of sensitive model data within your Laravel application and your database.
 
 If you don't want to use RSA keys, then I have another package [Eloquent AES](https://github.com/RichardStyles/eloquent-aes) which uses a separate key `eloquent_key` to encrypt using AES-256-CBC.
 
 ## Installation
 
-This package requires Laravel 8.x or higher.
+This package requires Laravel 9.x or higher and PHP 8.0 or higher.
 
 You can install the package via composer:
 
@@ -57,20 +56,16 @@ Schema::create('sales_notes', function (Blueprint $table) {
 
 You can use any additional blueprint helpers, such as `->nullable()` if there is no initial data to encrypt. It is advised that `->index()` shouldn't normally be placed on these binary fields as you should not be querying against these, given they are encrypted.
 
-## Usage 3.x
+## Usage
 
-As of version 3.x, the requirement for laravel is 8.14. This release added the `Model::encryptUsing()` static function to the base Eloquent Model. 
-This allows the built in process for encrypted casting to use any `Illuminate\Contracts\Encryption\Encrypter` class.
-
-**Please test with any existing keys and data before upgrading** 
-Otherwise your data may not be decrypted as expected. If you are on 2.x you should not see any issues as this version follows the Encrypter Contract required by the encryptUsing static function.
+⚠️**Please test with a backup any existing keys and data before upgrading**⚠️
 
 In your AppServiceProvider 
 ```php
 EncryptedCast::encryptUsing(new \RichardStyles\EloquentEncryption\EloquentEncryption);
 ```
 
-Then on your models, use the built in encrypted casts as needed.
+Then on your models, use the built-in encrypted casts as needed. This is preferred way to cast to/from common types.
 
 ```php
 class EncryptedCast extends Model
@@ -86,42 +81,6 @@ class EncryptedCast extends Model
 ```
 
 This was made possible by a [PR](https://github.com/laravel/framework/pull/35080) to Laravel by [@hivokas](https://github.com/hivokas).
-
-## Usage 2.x
-
-This package leverages Laravel's own [custom casting](https://laravel.com/docs/8.x/eloquent-mutators#custom-casts) to encode/decode values. 
-
-``` php
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
-use RichardStyles\EloquentEncryption\Casts\Encrypted;
-use RichardStyles\EloquentEncryption\Casts\EncryptedInteger;
-use RichardStyles\EloquentEncryption\Casts\EncryptedFloat;
-use RichardStyles\EloquentEncryption\Casts\EncryptedCollection;
-use RichardStyles\EloquentEncryption\Casts\EncryptedBoolean;
-
-class SalesData extends Model
-{
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'private_data' => Encrypted::class,
-        'private_int' => EncryptedInteger::class,
-        'private_float' => EncryptedFloat::class,
-        'private_collection' => EncryptedCollection::class,
-        'private_boolean' => EncryptedBoolean::class,
-    ];
-}
-
-```
-
-There are additional casts which will cast the decrypted value into a specific data type. If there is not one that you need, simply make a PR including sufficient testing.
 
 ### Custom RSA Key Storage
 
@@ -157,7 +116,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ## Support
 
-If you are having general issues with this package, feel free to contact me on [Twitter](https://twitter.com/StylesGoTweet).
+If you are having general issues with this package, feel free to contact me on [@Rjs@phpc.social](https://phpc.social/@rjs).
 
 If you believe you have found an issue, please report it using the [GitHub issue tracker](https://github.com/RichardStyles/EloquentEncryption/issues), or better yet, fork the repository and submit a pull request with a failing test.
 
