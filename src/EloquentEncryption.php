@@ -4,7 +4,8 @@ namespace RichardStyles\EloquentEncryption;
 
 use Illuminate\Contracts\Encryption\Encrypter;
 use Illuminate\Support\Facades\Config;
-use phpseclib\Crypt\RSA;
+use phpseclib3\Crypt\RSA;
+use phpseclib3\Crypt\PublicKeyLoader;
 use RichardStyles\EloquentEncryption\Contracts\RsaKeyHandler;
 use RichardStyles\EloquentEncryption\Exceptions\InvalidRsaKeyHandler;
 use RichardStyles\EloquentEncryption\Exceptions\RSAKeyFileMissing;
@@ -59,11 +60,20 @@ class EloquentEncryption implements Encrypter
      */
     public function createKey($email = '')
     {
-        $rsa = new RSA();
-        $rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_OPENSSH);
-        $rsa->setComment($email);
+        $keyLength = Config::get('eloquent_encryption.key.length', 4096);
+        $privateKey = RSA::createKey($keyLength);
 
-        return $rsa->createKey(Config::get('eloquent_encryption.key.length', 4096));
+        // Set comment for SSH format if email is provided
+        if (!empty($email)) {
+            $privateKey = $privateKey->withComment($email);
+        }
+
+        $publicKey = $privateKey->getPublicKey();
+
+        return [
+            'privatekey' => (string) $privateKey,
+            'publickey' => (string) $publicKey->toString('OpenSSH'),
+        ];
     }
 
     /**
@@ -74,11 +84,8 @@ class EloquentEncryption implements Encrypter
      */
     private function getRsa($key)
     {
-        $rsa = new RSA();
-        $rsa->loadKey($key);
-        $rsa->setEncryptionMode(RSA::ENCRYPTION_OAEP);
-
-        return $rsa;
+        $rsa = PublicKeyLoader::load($key);
+        return $rsa->withPadding(RSA::ENCRYPTION_OAEP);
     }
 
     /**
@@ -156,5 +163,25 @@ class EloquentEncryption implements Encrypter
     public function getKey()
     {
         return $this->handler->getPrivateKey();
+    }
+
+    /**
+     * Get all encryption keys including the current and previous keys.
+     *
+     * @return array
+     */
+    public function getAllKeys()
+    {
+        return [$this->getKey()];
+    }
+
+    /**
+     * Get the previous / old encryption keys.
+     *
+     * @return array
+     */
+    public function getPreviousKeys()
+    {
+        return [];
     }
 }

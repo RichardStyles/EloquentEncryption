@@ -1,43 +1,31 @@
 <?php
 
-
-namespace RichardStyles\EloquentEncryption\Tests\Unit;
-
-
 use Illuminate\Foundation\Auth\User;
 use RichardStyles\EloquentEncryption\Casts\Encrypted;
 use RichardStyles\EloquentEncryption\EloquentEncryptionFacade;
-use RichardStyles\EloquentEncryption\Tests\TestCase;
 
-class EncryptedCastTest extends TestCase
-{
-    /** @test */
-    function encrypted_cast_decrypts_values()
-    {
-        EloquentEncryptionFacade::shouldReceive('exists')
-            ->andReturn(true)
-            ->shouldReceive('decryptString')
-            ->with('001100110011')
-            ->andReturn('test');
+test('encrypted cast decrypts values', function () {
+    EloquentEncryptionFacade::shouldReceive('exists')
+        ->andReturn(true)
+        ->shouldReceive('decryptString')
+        ->with('001100110011')
+        ->andReturn('test');
 
-        $cast = new Encrypted();
-        $user = new User();
+    $cast = new Encrypted();
+    $user = new User();
 
-        $this->assertEquals('test', $cast->get($user, 'encrypted', '001100110011', []));
-    }
+    expect($cast->get($user, 'encrypted', '001100110011', []))->toBe('test');
+});
 
-    /** @test */
-    function encrypted_cast_encrypts_values()
-    {
-        EloquentEncryptionFacade::shouldReceive('exists')
-            ->andReturn(true)
-            ->shouldReceive('encryptString')
-            ->with('test')
-            ->andReturn('001100110011');
+test('encrypted cast encrypts values', function () {
+    EloquentEncryptionFacade::shouldReceive('exists')
+        ->andReturn(true)
+        ->shouldReceive('encryptString')
+        ->with('test')
+        ->andReturn('001100110011');
 
-        $cast = new Encrypted();
-        $user = new User();
+    $cast = new Encrypted();
+    $user = new User();
 
-        $this->assertEquals('001100110011', $cast->set($user, 'encrypted', 'test', []));
-    }
-}
+    expect($cast->set($user, 'encrypted', 'test', []))->toBe('001100110011');
+});

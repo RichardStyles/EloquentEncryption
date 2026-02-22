@@ -1,79 +1,40 @@
 <?php
 
-
-namespace RichardStyles\EloquentEncryption\Tests\Unit;
-
 use Illuminate\Support\Facades\Storage;
-use RichardStyles\EloquentEncryption\Contracts\RsaKeyHandler;
-use RichardStyles\EloquentEncryption\EloquentEncryption;
 use RichardStyles\EloquentEncryption\Exceptions\RSAKeyFileMissing;
 use RichardStyles\EloquentEncryption\FileSystem\RsaKeyStorageHandler;
-use RichardStyles\EloquentEncryption\Tests\TestCase;
-use RichardStyles\EloquentEncryption\Tests\Traits\WithRSAHelpers;
 
-class StorageHandlerTest extends TestCase
-{
-    use WithRSAHelpers;
+beforeEach(function () {
+    Storage::fake();
+    $this->handler = new RsaKeyStorageHandler();
+});
 
+test('if a public key is missing an error is thrown', function () {
+    expect(fn() => $this->handler->getPublicKey())
+        ->toThrow(RSAKeyFileMissing::class);
+});
 
-    /**
-     * @var RsaKeyHandler
-     */
-    private $handler;
+test('if a private key is missing an error is thrown', function () {
+    expect(fn() => $this->handler->getPrivateKey())
+        ->toThrow(RSAKeyFileMissing::class);
+});
 
-    public function setUp(): void
-    {
-        parent::setUp();
+test('if both key parts are missing exists returns false', function () {
+    expect($this->handler->exists())->toBeFalse();
+});
 
-        Storage::fake();
+test('if public key missing exists returns false', function () {
+    $this->makePrivateKey();
+    expect($this->handler->exists())->toBeFalse();
+});
 
-        $this->handler = new RsaKeyStorageHandler();
-    }
+test('if private key missing exists returns false', function () {
+    $this->makePublicKey();
+    expect($this->handler->exists())->toBeFalse();
+});
 
-    /** @test */
-    function if_a_public_key_is_missing_an_error_is_thrown()
-    {
-        $this->expectException(RSAKeyFileMissing::class);
-        $this->expectExceptionObject(new RSAKeyFileMissing);
-        $this->handler->getPublicKey();
-    }
-
-    /** @test */
-    function if_a_private_key_is_missing_an_error_is_thrown()
-    {
-        $this->expectException(RSAKeyFileMissing::class);
-        $this->expectExceptionObject(new RSAKeyFileMissing);
-        $this->handler->getPrivateKey();
-    }
-
-    /** @test */
-    function if_both_key_parts_are_missing_exists_returns_false()
-    {
-        $this->assertFalse($this->handler->exists());
-    }
-
-    /** @test */
-    function if_public_key_missing_exists_returns_false()
-    {
-        $this->makePrivateKey();
-
-        $this->assertFalse($this->handler->exists());
-    }
-
-    /** @test */
-    function if_private_key_missing_exists_returns_false()
-    {
-        $this->makePublicKey();
-
-        $this->assertFalse($this->handler->exists());
-    }
-
-    /** @test */
-    function if_public_and_private_keys_exists_returns_true()
-    {
-        $this->makePublicKey();
-        $this->makePrivateKey();
-
-        $this->assertTrue($this->handler->exists());
-    }
-}
+test('if public and private keys exists returns true', function () {
+    $this->makePublicKey();
+    $this->makePrivateKey();
+    expect($this->handler->exists())->toBeTrue();
+});
