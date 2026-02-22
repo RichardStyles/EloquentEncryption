@@ -11,8 +11,8 @@ test('encrypted integer cast decrypts values', function () {
         ->with('001100110011')
         ->andReturn('001100110011');
 
-    $cast = new EncryptedInteger();
-    $user = new User();
+    $cast = new EncryptedInteger;
+    $user = new User;
 
     $response = $cast->get($user, 'encrypted', '001100110011', []);
 
@@ -28,8 +28,8 @@ test('encrypted integer cast encrypts values', function () {
         ->with(110011001100)
         ->andReturn('001100110011');
 
-    $cast = new EncryptedInteger();
-    $user = new User();
+    $cast = new EncryptedInteger;
+    $user = new User;
 
     expect($cast->set($user, 'encrypted', 110011001100, []))->toBe('001100110011');
 });

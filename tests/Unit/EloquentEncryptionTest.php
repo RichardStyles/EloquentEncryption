@@ -8,16 +8,16 @@ use RichardStyles\EloquentEncryption\Exceptions\RSAKeyFileMissing;
 
 beforeEach(function () {
     Storage::fake();
-    $this->eloquent_encryption = new EloquentEncryption();
+    $this->eloquent_encryption = new EloquentEncryption;
 });
 
 test('if a public key is missing an error is thrown', function () {
-    expect(fn() => $this->eloquent_encryption->getPublicKey())
+    expect(fn () => $this->eloquent_encryption->getPublicKey())
         ->toThrow(RSAKeyFileMissing::class);
 });
 
 test('if a private key is missing an error is thrown', function () {
-    expect(fn() => $this->eloquent_encryption->getPrivateKey())
+    expect(fn () => $this->eloquent_encryption->getPrivateKey())
         ->toThrow(RSAKeyFileMissing::class);
 });
 
@@ -66,7 +66,7 @@ test('a string can be encrypted and decrypted', function () {
 test('an invalid rsa key handler throws exception', function () {
     Config::set('eloquent_encryption.handler', BadRsaKeyHandler::class);
 
-    expect(fn() => new EloquentEncryption())
+    expect(fn () => new EloquentEncryption)
         ->toThrow(InvalidRsaKeyHandler::class);
 });
 

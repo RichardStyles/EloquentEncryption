@@ -1,11 +1,9 @@
 <?php
 
-
 namespace RichardStyles\EloquentEncryption\Tests\Traits;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use phpseclib3\Crypt\PublicKeyLoader;
 
@@ -61,6 +59,7 @@ trait WithRSAHelpers
     protected function makeRawKey($path, $key, $contents)
     {
         Storage::put($path.$key, $contents);
+
         return $key;
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
 use RichardStyles\EloquentEncryption\Tests\TestCase;
-use RichardStyles\EloquentEncryption\Tests\ModelCustomEncryptorTestCase;
 use RichardStyles\EloquentEncryption\Tests\Traits\WithRSAHelpers;
 
 /*
@@ -18,6 +17,9 @@ use RichardStyles\EloquentEncryption\Tests\Traits\WithRSAHelpers;
 
 // All Unit tests use base TestCase
 uses(TestCase::class)->in('Unit');
+
+// All Integration tests use base TestCase
+uses(TestCase::class)->in('Integration');
 
 /*
 |--------------------------------------------------------------------------

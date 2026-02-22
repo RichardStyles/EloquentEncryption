@@ -23,6 +23,7 @@
         "phpseclib/phpseclib": "^3.0"
     },
     "require-dev": {
+        "laravel/pint": "^1.0",
         "orchestra/testbench": "^9.0||^10.0",
         "pestphp/pest": "^2.0||^3.0",
         "pestphp/pest-plugin-laravel": "^2.0||^3.0"
@@ -39,7 +40,9 @@
     },
     "scripts": {
         "test": "vendor/bin/pest",
-        "test-coverage": "vendor/bin/pest --coverage --coverage-html=coverage"
+        "test-coverage": "vendor/bin/pest --coverage --coverage-html=coverage",
+        "lint": "vendor/bin/pint",
+        "lint:test": "vendor/bin/pint --test"
     },
     "config": {
         "sort-packages": true,

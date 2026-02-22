@@ -1,15 +1,13 @@
 <?php
 
-
 namespace RichardStyles\EloquentEncryption\Contracts;
-
 
 use RichardStyles\EloquentEncryption\Exceptions\RSAKeyFileMissing;
 
 interface RsaKeyHandler
 {
     /**
-     * Have any RSA keys been generated
+     * Have any keys been generated
      *
      * @return bool
      */
@@ -30,10 +28,7 @@ interface RsaKeyHandler
     public function hasPublicKey();
 
     /**
-     * Save the generated RSA key to the storage location
-     *
-     * @param $public
-     * @param $private
+     * Save the generated key pair to the storage location
      */
     public function saveKey($public, $private);
 
@@ -41,6 +36,7 @@ interface RsaKeyHandler
      * Get the contents of the public key file
      *
      * @return string
+     *
      * @throws RSAKeyFileMissing
      */
     public function getPublicKey();
@@ -49,7 +45,43 @@ interface RsaKeyHandler
      * Get the contents of the private key file
      *
      * @return string
+     *
      * @throws RSAKeyFileMissing
      */
     public function getPrivateKey();
+
+    /**
+     * Get all previous public keys
+     *
+     * @deprecated Use getPreviousKeys() instead for structured key pairs
+     */
+    public function getPreviousPublicKeys(): array;
+
+    /**
+     * Get all previous private keys
+     *
+     * @deprecated Use getPreviousKeys() instead for structured key pairs
+     */
+    public function getPreviousPrivateKeys(): array;
+
+    /**
+     * Get all previous key pairs with rotation metadata
+     *
+     * Returns an array of key pairs, each containing:
+     * - 'publickey': The public key content
+     * - 'privatekey': The private key content
+     * - 'rotated_at': ISO 8601 timestamp of when the key was rotated
+     *
+     * This keeps key pairs together for auditing purposes. Note that previous
+     * public keys are not used for cryptographic operations (only decryption
+     * uses previous private keys), but are maintained for audit trails.
+     *
+     * @return array<int, array{publickey: string, privatekey: string, rotated_at: string}>
+     */
+    public function getPreviousKeys(): array;
+
+    /**
+     * Rotate keys: move current to previous, save new as current
+     */
+    public function rotateKeys(string $newPublic, string $newPrivate): void;
 }

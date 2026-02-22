@@ -11,13 +11,13 @@ beforeEach(function () {
     // Setup SQLite in-memory database
     Config::set('database.default', 'testbench');
     Config::set('database.connections.testbench', [
-        'driver'   => 'sqlite',
+        'driver' => 'sqlite',
         'database' => ':memory:',
-        'prefix'   => '',
+        'prefix' => '',
     ]);
 
     // Register facade alias
-    if (!class_exists('EloquentEncryption')) {
+    if (! class_exists('EloquentEncryption')) {
         class_alias(EloquentEncryptionFacade::class, 'EloquentEncryption');
     }
 
@@ -68,6 +68,7 @@ test('a model can encrypt using eloquent encryption', function () {
 class EncryptedCast extends Model
 {
     public $timestamps = false;
+
     protected $guarded = [];
 
     public $casts = [

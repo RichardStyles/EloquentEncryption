@@ -6,16 +6,16 @@ use RichardStyles\EloquentEncryption\FileSystem\RsaKeyStorageHandler;
 
 beforeEach(function () {
     Storage::fake();
-    $this->handler = new RsaKeyStorageHandler();
+    $this->handler = new RsaKeyStorageHandler;
 });
 
 test('if a public key is missing an error is thrown', function () {
-    expect(fn() => $this->handler->getPublicKey())
+    expect(fn () => $this->handler->getPublicKey())
         ->toThrow(RSAKeyFileMissing::class);
 });
 
 test('if a private key is missing an error is thrown', function () {
-    expect(fn() => $this->handler->getPrivateKey())
+    expect(fn () => $this->handler->getPrivateKey())
         ->toThrow(RSAKeyFileMissing::class);
 });
 

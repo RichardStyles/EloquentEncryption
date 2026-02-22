@@ -2,30 +2,34 @@
 
 namespace RichardStyles\EloquentEncryption\Tests\Unit;
 
-use Illuminate\Database\Schema\Grammars\SqlServerGrammar;
-use Mockery;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Grammars\SqlServerGrammar;
+use Mockery;
 use RichardStyles\EloquentEncryption\Tests\TestCase;
 
 class DatabaseSqlServerSchemaGrammarTest extends TestCase
 {
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         Mockery::close();
+        parent::tearDown();
     }
 
-    public function testAddingEncryptedColumn()
+    public function test_adding_encrypted_column()
     {
-        $blueprint = new Blueprint('users', function ($table) {
+        $connection = Mockery::mock(Connection::class);
+        $connection->shouldReceive('getTablePrefix')->andReturn('');
+        $grammar = new SqlServerGrammar($connection);
+        $connection->shouldReceive('getSchemaGrammar')->andReturn($grammar);
+
+        $blueprint = new Blueprint($connection, 'users', function ($table) {
             $table->encrypted('foo');
         });
 
-        $connection = Mockery::mock(Connection::class);
-
         $this->assertEquals(
             ['alter table "users" add "foo" varbinary(max) not null'],
-            $blueprint->toSql($connection, new SqlServerGrammar)
+            $blueprint->toSql($connection, $grammar)
         );
     }
 }

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace RichardStyles\EloquentEncryption\Casts;
-
 
 use Illuminate\Database\Eloquent\JsonEncodingException;
 use Illuminate\Support\Collection;
@@ -34,14 +32,16 @@ class EncryptedCollection extends Encrypted
      */
     public function set($model, $key, $value, $attributes)
     {
-        if($value instanceof Collection){
+        if ($value instanceof Collection) {
             $value = $value->toJson();
-        }else {
+        } else {
             $value = json_encode($value);
 
             if ($value === false) {
                 throw JsonEncodingException::forAttribute(
-                    $this, $key, json_last_error_msg()
+                    $this,
+                    $key,
+                    json_last_error_msg()
                 );
             }
         }

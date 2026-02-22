@@ -9,7 +9,7 @@ class ModelCustomEncryptorTestCase extends TestCase
     protected function getPackageAliases($app)
     {
         return [
-            'EloquentEncryption' => EloquentEncryptionFacade::class
+            'EloquentEncryption' => EloquentEncryptionFacade::class,
         ];
     }
 
@@ -17,9 +17,9 @@ class ModelCustomEncryptorTestCase extends TestCase
     {
         $app['config']->set('database.default', 'testbench');
         $app['config']->set('database.connections.testbench', [
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix'   => '',
+            'prefix' => '',
         ]);
     }
 }

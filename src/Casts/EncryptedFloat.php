@@ -1,18 +1,16 @@
 <?php
 
-
 namespace RichardStyles\EloquentEncryption\Casts;
-
 
 class EncryptedFloat extends Encrypted
 {
     /**
      * Cast the given value and decrypt
      *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     * @param string $key
-     * @param mixed $value
-     * @param array $attributes
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @param  string  $key
+     * @param  mixed  $value
+     * @param  array  $attributes
      * @return int
      */
     public function get($model, $key, $value, $attributes)
@@ -23,10 +21,10 @@ class EncryptedFloat extends Encrypted
     /**
      * Prepare the given value for storage.
      *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     * @param string $key
-     * @param float $value
-     * @param array $attributes
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @param  string  $key
+     * @param  float  $value
+     * @param  array  $attributes
      * @return string
      */
     public function set($model, $key, $value, $attributes)
@@ -37,12 +35,12 @@ class EncryptedFloat extends Encrypted
     /**
      * Decode the given float.
      *
-     * @param mixed $value
+     * @param  mixed  $value
      * @return mixed
      */
     public function fromFloat($value)
     {
-        switch ((string)$value) {
+        switch ((string) $value) {
             case 'Infinity':
                 return INF;
             case '-Infinity':
@@ -50,7 +48,7 @@ class EncryptedFloat extends Encrypted
             case 'NaN':
                 return NAN;
             default:
-                return (float)$value;
+                return (float) $value;
         }
     }
 }

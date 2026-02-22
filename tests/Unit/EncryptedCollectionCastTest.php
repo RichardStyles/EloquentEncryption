@@ -15,8 +15,8 @@ test('encrypted collection cast decrypts values', function () {
         ->with('001100110011')
         ->andReturn('{"test":"a","foo":"bar","bar":{"test":"result"}}');
 
-    $cast = new EncryptedCollection();
-    $user = new User();
+    $cast = new EncryptedCollection;
+    $user = new User;
 
     $response = $cast->get($user, 'encrypted', '001100110011', []);
 
@@ -26,10 +26,10 @@ test('encrypted collection cast decrypts values', function () {
 test('encrypted collection cast encrypts values', function () {
     $collect = collect([
         'test' => 'a',
-        'foo'  => 'bar',
-        'bar'  => [
-            'test' => 'result'
-        ]
+        'foo' => 'bar',
+        'bar' => [
+            'test' => 'result',
+        ],
     ]);
     EloquentEncryptionFacade::partialMock()
         ->shouldReceive('exists')
@@ -38,16 +38,16 @@ test('encrypted collection cast encrypts values', function () {
         ->with('{"test":"a","foo":"bar","bar":{"test":"result"}}')
         ->andReturn('001100110011');
 
-    $cast = new EncryptedCollection();
-    $user = new User();
+    $cast = new EncryptedCollection;
+    $user = new User;
 
     expect($cast->set($user, 'encrypted', $collect, []))->toBe('001100110011');
 });
 
 test('cannot encrypted invalid array values', function () {
-    $cast = new EncryptedCollection();
-    $user = new User();
+    $cast = new EncryptedCollection;
+    $user = new User;
 
-    expect(fn() => $cast->set($user, 'encrypted', "\xB1\x31", []))
+    expect(fn () => $cast->set($user, 'encrypted', "\xB1\x31", []))
         ->toThrow(JsonEncodingException::class);
 });

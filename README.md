@@ -17,10 +17,15 @@ This package enables an additional layer of security when handling sensitive dat
 
 ## Introduction
 
-This open source package fulfils the need of encrypting selected model data in your database whilst allowing your app:key to be rotated. When needing to store private details this package allows for greater security than the default Laravel encrypter. 
-It uses default 4096-bit RSA keys to encrypt your data securely and Laravel model casting to dynamically encrypt and decrypt key fields. 
+This open source package fulfils the need of encrypting selected model data in your database whilst allowing your app:key to be rotated. When needing to store private details this package allows for greater security than the default Laravel encrypter.
 
-Usually, you would use [Laravel's Encrypter](https://laravel.com/docs/12.x/encryption) to encrypt the data, but this has the limitation of using the `app:key` as the private secret. As the app key also secures session/cookie data, it is [advised that you rotate this every so often](https://tighten.co/blog/app-key-and-you/) - if you're storing encrypted data using this method you have to decrypt it all first and re-encrypt whenever this is done. Therefore this package improves on this by creating a separate and stronger encryption process allowing you to rotate the app:key. This allows for a  level of security of sensitive model data within your Laravel application and your database.
+The package supports two encryption methods:
+- **RSA Encryption**: Uses 4096-bit asymmetric keys providing robust security for encrypting sensitive data fields with public-key cryptography.
+- **X25519 Encryption**: Leverages modern Curve25519 elliptic curve cryptography for faster performance while maintaining strong security guarantees.
+
+Both methods use Laravel model casting to dynamically encrypt and decrypt key fields.
+
+Usually, you would use [Laravel's Encrypter](https://laravel.com/docs/12.x/encryption) to encrypt the data, but this has the limitation of using the `app:key` as the private secret. As the app key also secures session/cookie data, it is [advised that you rotate this every so often](https://tighten.co/blog/app-key-and-you/) - if you're storing encrypted data using this method you have to decrypt it all first and re-encrypt whenever this is done. Therefore this package improves on this by creating a separate and stronger encryption process allowing you to rotate the app:key. This allows for a level of security of sensitive model data within your Laravel application and your database.
 
 If you don't want to use RSA keys, then I have another package [Eloquent AES](https://github.com/RichardStyles/eloquent-aes) which uses a separate key `eloquent_key` to encrypt using AES-256-CBC.
 
@@ -196,19 +201,192 @@ This was made possible by a [PR to Laravel](https://github.com/laravel/framework
 
 ---
 
-### Custom RSA Key Storage
+## Key Rotation
 
-If you want to store your RSA key another way, ie such as using [Hashicorp Vault](https://www.vaultproject.io/). You can change the config option `handler` to a specific class which uses the `RsaKeyHandler` contract.
-By default, this package uses a storage handler, which saves the generated key pair to `storage/` and retrieved the contents of the keys when encryption or decryption are processed. This is something that should be considered as it could add latency to your application.
+For enhanced security, you can rotate your RSA encryption keys periodically. The package supports key rotation without losing access to previously encrypted data.
+
+### How Key Rotation Works
+
+1. **Generate new keys**: Creates a new RSA key pair
+2. **Preserve old keys**: Moves current keys to a "previous keys" list
+3. **Decrypt old data**: Data encrypted with previous keys can still be decrypted
+4. **Encrypt new data**: New data is encrypted with the latest key
+
+### Rotating Keys
+
+```bash
+php artisan encrypt:rotate
+```
+
+This command will:
+- Generate a new 4096-bit RSA key pair
+- Move your current keys to the previous keys list
+- Maintain up to 5 previous key pairs (configurable)
+- Preserve the ability to decrypt data encrypted with any previous key
+
+### Configuration
+
+You can configure the maximum number of previous keys to maintain:
 
 ```php
-    /**
-     * This class can be overridden to define how the RSA keys are stored, checked for
-     * existence and returned for Encryption and Decryption. This allows for keys to
-     * be held in secure Vaults or through another provider.
-     */
-    'handler' => \RichardStyles\EloquentEncryption\FileSystem\RsaKeyStorageHandler::class,
+// config/eloquent_encryption.php
+'key' => [
+    'max_previous_keys' => 5, // Keep up to 5 previous key pairs
+],
 ```
+
+### Key Storage Structure (Default File-Based Handler)
+
+When using the default `RsaKeyStorageHandler`, key rotation history is tracked in a metadata file. Each previous key pair includes:
+
+- **Public Key Path**: Path to the public key file
+- **Private Key Path**: Path to the private key file
+- **Rotation Timestamp**: ISO 8601 timestamp of when the key was rotated
+
+The metadata is stored in `storage/.eloquent_encryption_metadata.json`:
+
+```json
+{
+  "current": {
+    "public": "eloquent_encryption.pub",
+    "private": "eloquent_encryption"
+  },
+  "previous": [
+    {
+      "public": "eloquent_encryption.1.pub",
+      "private": "eloquent_encryption.1",
+      "rotated_at": "2026-01-15T10:30:00+00:00"
+    },
+    {
+      "public": "eloquent_encryption.2.pub",
+      "private": "eloquent_encryption.2",
+      "rotated_at": "2026-02-22T14:45:00+00:00"
+    }
+  ]
+}
+```
+
+**Important Notes:**
+- **Previous public keys are maintained for audit trails** but are not used for cryptographic operations
+- Only **previous private keys** are used when decrypting data encrypted with rotated keys
+- Public and private keys are kept together as pairs to maintain historical integrity
+- Each rotation is timestamped for compliance and security auditing
+- When the `max_previous_keys` limit is reached, the oldest key pair is removed entirely
+
+> **Note:** This metadata structure is specific to the default `RsaKeyStorageHandler`. If you implement a [custom key storage handler](#custom-key-storage-handlers), you can manage key rotation history however you prefer, as long as your `getPreviousKeys()` method returns the required structured format.
+
+### Security Best Practices
+
+- **Regular rotation**: Rotate keys every 6-12 months
+- **Backup before rotation**: Always backup your current keys before rotating
+- **Monitor access**: Track which keys are being used for decryption
+- **Cleanup old keys**: After re-encrypting all data, remove very old previous keys
+
+### Re-encrypting Data with New Keys
+
+After rotation, existing data remains encrypted with old keys. To re-encrypt with the new key:
+
+1. Read the encrypted attribute (triggers decryption with previous key)
+2. Save the model (triggers encryption with new current key)
+
+Example:
+```php
+// This will decrypt with old key and re-encrypt with new key
+User::chunk(100, function ($users) {
+    foreach ($users as $user) {
+        if ($user->highly_sensitive_field) {
+            $user->save(); // Re-encrypts with new key
+        }
+    }
+});
+```
+
+---
+
+## Custom Key Storage Handlers
+
+The package is designed to be flexible and extensible. The default `RsaKeyStorageHandler` stores keys in the local filesystem, but you can **implement your own custom key storage** to integrate with external systems like [HashiCorp Vault](https://www.vaultproject.io/), AWS KMS, Azure Key Vault, or databases.
+
+### How to Implement a Custom Handler
+
+1. **Create a class** that implements the `RsaKeyHandler` interface:
+
+```php
+<?php
+
+namespace App\Encryption;
+
+use RichardStyles\EloquentEncryption\Contracts\RsaKeyHandler;
+
+class VaultKeyHandler implements RsaKeyHandler
+{
+    public function exists(): bool
+    {
+        // Check if keys exist in your vault
+    }
+
+    public function getPublicKey(): string
+    {
+        // Retrieve public key from vault
+    }
+
+    public function getPrivateKey(): string
+    {
+        // Retrieve private key from vault
+    }
+
+    public function getPreviousKeys(): array
+    {
+        // Return array of previous key pairs with metadata:
+        // [
+        //   ['publickey' => '...', 'privatekey' => '...', 'rotated_at' => '...'],
+        //   ...
+        // ]
+    }
+
+    public function rotateKeys(string $newPublic, string $newPrivate): void
+    {
+        // Move current keys to previous, save new keys
+    }
+
+    // Implement remaining interface methods...
+}
+```
+
+2. **Update the config** to use your custom handler:
+
+```php
+// config/eloquent_encryption.php
+return [
+    'handler' => \App\Encryption\VaultKeyHandler::class,
+    // ... other config
+];
+```
+
+That's it! The package will automatically use your custom handler for all key operations.
+
+### Important Notes
+
+- Your handler **must implement** `RichardStyles\EloquentEncryption\Contracts\RsaKeyHandler`
+- The `getPreviousKeys()` method should return structured key pairs:
+  ```php
+  [
+    [
+      'publickey' => 'public key content',
+      'privatekey' => 'private key content',
+      'rotated_at' => '2026-02-22T14:45:00+00:00', // ISO 8601 timestamp
+    ],
+    // ... more previous keys
+  ]
+  ```
+- Previous public keys are maintained for audit trails but aren't used for decryption
+- Only previous **private keys** are used when decrypting data encrypted with old keys
+
+### Default Handler (RsaKeyStorageHandler)
+
+The default file-based handler stores keys in your Laravel `storage/` directory and uses a `.eloquent_encryption_metadata.json` file to track key rotation history. This metadata file is an **implementation detail** of the file-based handler and won't be relevant to custom handlers.
+
+**Performance Consideration:** The default handler reads key files from disk on each encryption/decryption operation. For high-throughput applications, consider implementing a caching layer or using a custom handler with in-memory caching.
 
 ### Query Builder
 
@@ -284,6 +462,20 @@ composer test-coverage
 Run specific test files:
 ``` bash
 vendor/bin/pest tests/Unit/EloquentEncryptionTest.php
+```
+
+### Code Style
+
+This package uses [Laravel Pint](https://laravel.com/docs/pint) for code style formatting.
+
+Run Pint to fix code style:
+``` bash
+composer lint
+```
+
+Check code style without making changes:
+``` bash
+composer lint:test
 ```
 
 ### Changelog
