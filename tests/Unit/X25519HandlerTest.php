@@ -186,7 +186,7 @@ test('decrypt with corrupted payload throws exception', function () {
     $encrypted = $this->handler->encrypt('Original message');
 
     // Corrupt the payload by modifying the tag
-    $corrupted = substr($encrypted, 0, 44) . 'X' . substr($encrypted, 45);
+    $corrupted = substr($encrypted, 0, 44).'X'.substr($encrypted, 45);
 
     $this->handler->decrypt($corrupted);
 })->throws(\RuntimeException::class, 'authentication tag mismatch');
