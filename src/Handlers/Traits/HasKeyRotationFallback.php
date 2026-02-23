@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RichardStyles\EloquentEncryption\Handlers\Traits;
 
 trait HasKeyRotationFallback

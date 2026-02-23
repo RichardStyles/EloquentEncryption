@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RichardStyles\EloquentEncryption\Casts;
 
 class EncryptedBoolean extends Encrypted

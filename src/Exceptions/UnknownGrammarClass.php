@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RichardStyles\EloquentEncryption\Exceptions;
 
 class UnknownGrammarClass extends \Exception

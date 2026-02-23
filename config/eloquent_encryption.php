@@ -44,6 +44,13 @@ return [
          * Maximum number of previous keys to maintain
          */
         'max_previous_keys' => env('MAX_PREVIOUS_KEYS', 5),
+
+        /**
+         * The filename for the key rotation metadata file.
+         * This tracks current and previous key pairs for rotation support.
+         * Each cipher configuration should use a unique metadata file.
+         */
+        'metadata' => env('KEY_METADATA', '.eloquent_encryption_metadata.json'),
     ],
 
     /**

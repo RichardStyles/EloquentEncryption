@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RichardStyles\EloquentEncryption\Console\Commands;
 
 use Illuminate\Console\Command;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RichardStyles\EloquentEncryption\Handlers;
 
 use Illuminate\Support\Facades\Config;

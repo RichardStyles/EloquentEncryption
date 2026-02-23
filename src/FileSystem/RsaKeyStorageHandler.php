@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RichardStyles\EloquentEncryption\FileSystem;
 
 use Illuminate\Support\Facades\Config;
@@ -11,10 +13,8 @@ class RsaKeyStorageHandler implements RsaKeyHandler
 {
     /**
      * Metadata file name for tracking key rotation history
-     * This is an implementation detail of the file-based storage handler
-     * and can be overridden by extending classes if needed
      */
-    protected string $metadata_file = '.eloquent_encryption_metadata.json';
+    protected string $metadata_file;
 
     /**
      * Storage path for the Public Key File
@@ -39,6 +39,8 @@ class RsaKeyStorageHandler implements RsaKeyHandler
             Config::get('eloquent_encryption.key.public', 'eloquent_encryption.pub');
         $this->private_key_path =
             Config::get('eloquent_encryption.key.private', 'eloquent_encryption');
+        $this->metadata_file =
+            Config::get('eloquent_encryption.key.metadata', '.eloquent_encryption_metadata.json');
     }
 
     /**

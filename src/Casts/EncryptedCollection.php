@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RichardStyles\EloquentEncryption\Casts;
 
 use Illuminate\Database\Eloquent\JsonEncodingException;
@@ -14,11 +16,18 @@ class EncryptedCollection extends Encrypted
      * @param  string  $key
      * @param  mixed  $value
      * @param  array  $attributes
-     * @return int
+     * @return Collection
      */
     public function get($model, $key, $value, $attributes)
     {
-        return new Collection(json_decode(parent::get($model, $key, $value, $attributes)));
+        /** @var string $decrypted */
+        $decrypted = parent::get($model, $key, $value, $attributes);
+
+        if ($decrypted === null) {
+            return new Collection;
+        }
+
+        return new Collection(json_decode($decrypted));
     }
 
     /**

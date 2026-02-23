@@ -29,3 +29,17 @@ test('encrypted cast encrypts values', function () {
 
     expect($cast->set($user, 'encrypted', 'test', []))->toBe('001100110011');
 });
+
+test('encrypted cast returns null when decrypting null value', function () {
+    $cast = new Encrypted;
+    $user = new User;
+
+    expect($cast->get($user, 'encrypted', null, []))->toBeNull();
+});
+
+test('encrypted cast returns null when encrypting null value', function () {
+    $cast = new Encrypted;
+    $user = new User;
+
+    expect($cast->set($user, 'encrypted', null, []))->toBeNull();
+});
