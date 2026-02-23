@@ -51,3 +51,13 @@ test('cannot encrypted invalid array values', function () {
     expect(fn () => $cast->set($user, 'encrypted', "\xB1\x31", []))
         ->toThrow(JsonEncodingException::class);
 });
+
+test('encrypted collection cast handles null values', function () {
+    $cast = new EncryptedCollection;
+    $user = new User;
+
+    $response = $cast->get($user, 'encrypted', null, []);
+
+    expect($response)->toBeInstanceOf(Collection::class)
+        ->and($response)->toBeEmpty();
+});

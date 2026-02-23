@@ -39,7 +39,7 @@ test('decrypting inf float', function () {
         ->andReturn(true)
         ->shouldReceive('decryptString')
         ->with('001100110011')
-        ->andReturn(INF);
+        ->andReturn('Infinity');
 
     $cast = new EncryptedFloat;
     $user = new User;
@@ -47,4 +47,34 @@ test('decrypting inf float', function () {
     $response = $cast->get($user, 'encrypted', '001100110011', []);
 
     expect($response)->toBe(INF);
+});
+
+test('decrypting negative inf float', function () {
+    EloquentEncryptionFacade::shouldReceive('exists')
+        ->andReturn(true)
+        ->shouldReceive('decryptString')
+        ->with('001100110011')
+        ->andReturn('-Infinity');
+
+    $cast = new EncryptedFloat;
+    $user = new User;
+
+    $response = $cast->get($user, 'encrypted', '001100110011', []);
+
+    expect($response)->toBe(-INF);
+});
+
+test('decrypting NaN float', function () {
+    EloquentEncryptionFacade::shouldReceive('exists')
+        ->andReturn(true)
+        ->shouldReceive('decryptString')
+        ->with('001100110011')
+        ->andReturn('NaN');
+
+    $cast = new EncryptedFloat;
+    $user = new User;
+
+    $response = $cast->get($user, 'encrypted', '001100110011', []);
+
+    expect($response)->toBeNan();
 });
