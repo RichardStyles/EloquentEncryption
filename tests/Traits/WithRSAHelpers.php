@@ -1,13 +1,11 @@
 <?php
 
-
 namespace RichardStyles\EloquentEncryption\Tests\Traits;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
-use phpseclib\Crypt\RSA;
+use phpseclib3\Crypt\PublicKeyLoader;
 
 trait WithRSAHelpers
 {
@@ -15,16 +13,15 @@ trait WithRSAHelpers
 
     public function validateRSAKeys($public, $private)
     {
-        $rsa = new RSA();
-        // create signature using private key
-        $rsa->loadKey($private);
+        // Load private key and create signature
+        $privateKey = PublicKeyLoader::load($private);
         $plaintext = $this->faker->paragraph;
-        $signature = $rsa->sign($plaintext);
+        $signature = $privateKey->sign($plaintext);
 
-        // load the public key to validate signature
-        $rsa->loadKey($public);
+        // Load public key and verify signature
+        $publicKey = PublicKeyLoader::load($public);
 
-        $this->assertTrue($rsa->verify($plaintext, $signature));
+        $this->assertTrue($publicKey->verify($plaintext, $signature));
     }
 
     public function keysExistsInStorage($public, $private)
@@ -62,6 +59,7 @@ trait WithRSAHelpers
     protected function makeRawKey($path, $key, $contents)
     {
         Storage::put($path.$key, $contents);
+
         return $key;
     }
 }

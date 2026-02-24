@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RichardStyles\EloquentEncryption;
 
 use Illuminate\Database\Schema\Blueprint;
@@ -8,6 +10,7 @@ use Illuminate\Database\Schema\Grammars\Grammar;
 use Illuminate\Support\Fluent;
 use Illuminate\Support\ServiceProvider;
 use RichardStyles\EloquentEncryption\Console\Commands\GenerateRsaKeys;
+use RichardStyles\EloquentEncryption\Console\Commands\RotateEncryptionKeys;
 use RichardStyles\EloquentEncryption\Exceptions\UnknownGrammarClass;
 
 class EloquentEncryptionServiceProvider extends ServiceProvider
@@ -15,16 +18,17 @@ class EloquentEncryptionServiceProvider extends ServiceProvider
     /**
      * Bootstrap the application services.
      */
-    public function boot()
+    public function boot(): void
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../config/eloquent_encryption.php' => config_path('eloquent_encryption.php'),
+                __DIR__.'/../config/eloquent_encryption.php' => config_path('eloquent_encryption.php'),
             ], 'config');
 
             // Registering package commands.
             $this->commands([
                 GenerateRsaKeys::class,
+                RotateEncryptionKeys::class,
             ]);
         }
     }
@@ -37,25 +41,24 @@ class EloquentEncryptionServiceProvider extends ServiceProvider
         Grammar::macro('typeEncrypted', function (Fluent $column) {
             $className = (new \ReflectionClass($this))->getShortName();
 
-            if ($className === "MySqlGrammar") {
+            if ($className === 'MySqlGrammar') {
                 return 'blob';
             }
 
-            if ($className === "PostgresGrammar") {
+            if ($className === 'PostgresGrammar') {
                 return 'bytea';
             }
 
-            if ($className === "SQLiteGrammar") {
+            if ($className === 'SQLiteGrammar') {
                 return 'blob';
             }
 
-            if ($className === "SqlServerGrammar") {
+            if ($className === 'SqlServerGrammar') {
                 return 'varbinary(max)';
             }
 
             throw new UnknownGrammarClass;
         });
-
 
         Blueprint::macro('encrypted', function ($column): ColumnDefinition {
             /** @var Blueprint $this */
@@ -63,7 +66,7 @@ class EloquentEncryptionServiceProvider extends ServiceProvider
         });
 
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__ . '/../config/eloquent_encryption.php', 'eloquentencryption');
+        $this->mergeConfigFrom(__DIR__.'/../config/eloquent_encryption.php', 'eloquent_encryption');
 
         // Register the main class to use with the facade
         $this->app->singleton('eloquentencryption', function () {

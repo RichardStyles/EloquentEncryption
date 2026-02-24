@@ -1,8 +1,8 @@
 <?php
 
+declare(strict_types=1);
 
 namespace RichardStyles\EloquentEncryption\Console\Commands;
-
 
 use Illuminate\Console\Command;
 use RichardStyles\EloquentEncryption\EloquentEncryptionFacade;
@@ -21,8 +21,7 @@ class GenerateRsaKeys extends Command
      *
      * @var string
      */
-    protected $description = 'This generates the application level RSA keys ' .
-    'which are used to encrypt the application data at rest';
+    protected $description = 'Generate encryption keys for the configured encryptor (RSA, X25519, etc.)';
 
     /**
      * Create a new command instance.
@@ -42,14 +41,12 @@ class GenerateRsaKeys extends Command
     public function handle()
     {
         // check for existing keys - do not overwrite
-        if(EloquentEncryptionFacade::exists()){
-
+        if (EloquentEncryptionFacade::exists()) {
             $this->warn('Application RSA keys are already set');
             $this->warn('**********************************************************************');
             $this->warn('* If you reset your keys you will lose access to any encrypted data. *');
             $this->warn('**********************************************************************');
             if ($this->confirm('Do you wish to reset your encryption keys?') === false) {
-
                 $this->info('RSA Keys have not been overwritten');
 
                 return;

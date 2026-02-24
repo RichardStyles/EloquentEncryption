@@ -1,92 +1,62 @@
 <?php
 
-
-namespace RichardStyles\EloquentEncryption\Tests\Unit;
-
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use RichardStyles\EloquentEncryption\EloquentEncryption;
 use RichardStyles\EloquentEncryption\EloquentEncryptionFacade;
-use RichardStyles\EloquentEncryption\Tests\TestCase;
-use RichardStyles\EloquentEncryption\Tests\Traits\WithRSAHelpers;
 
-class ModelCustomEncryptorTest extends TestCase
-{
-    use WithRSAHelpers;
+beforeEach(function () {
+    // Setup SQLite in-memory database
+    Config::set('database.default', 'testbench');
+    Config::set('database.connections.testbench', [
+        'driver' => 'sqlite',
+        'database' => ':memory:',
+        'prefix' => '',
+    ]);
 
-    protected $eloquent_encryption;
-
-    protected function getPackageAliases($app)
-    {
-        return [
-            'EloquentEncryption' => EloquentEncryptionFacade::class
-        ];
+    // Register facade alias
+    if (! class_exists('EloquentEncryption')) {
+        class_alias(EloquentEncryptionFacade::class, 'EloquentEncryption');
     }
 
-    /**
-     * Define environment setup.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     * @return void
-     */
-    protected function getEnvironmentSetUp($app)
-    {
-        // Setup default database to use sqlite :memory:
-        $app['config']->set('database.default', 'testbench');
-        $app['config']->set('database.connections.testbench', [
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-            'prefix'   => '',
-        ]);
-    }
+    $this->eloquentEncryption = $this->mock(EloquentEncryption::class);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
+    Schema::create('encrypted_casts', function (Blueprint $table) {
+        $table->increments('id');
+        $table->string('secret', 1000)->nullable();
+        $table->text('secret_array')->nullable();
+        $table->text('secret_json')->nullable();
+        $table->text('secret_object')->nullable();
+        $table->text('secret_collection')->nullable();
+    });
 
-        $this->eloquentEncryption = $this->mock(EloquentEncryption::class);
+    expect(Model::$encrypter)->toBeNull();
 
-        Schema::create('encrypted_casts', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('secret', 1000)->nullable();
-            $table->text('secret_array')->nullable();
-            $table->text('secret_json')->nullable();
-            $table->text('secret_object')->nullable();
-            $table->text('secret_collection')->nullable();
-        });
+    Model::encryptUsing($this->eloquentEncryption);
+});
 
-        $this->assertNull(Model::$encrypter);
+test('a model can encrypt using eloquent encryption', function () {
+    $this->eloquentEncryption->expects('encrypt')
+        ->with('this is a secret string', false)
+        ->andReturn('encrypted-secret-string');
+    $this->eloquentEncryption->expects('decrypt')
+        ->with('encrypted-secret-string', false)
+        ->andReturn('this is a secret string');
 
-        Model::encryptUsing($this->eloquentEncryption);
-    }
+    /** @var \Illuminate\Tests\Integration\Database\EncryptedCast $subject */
+    $subject = EncryptedCast::create([
+        'secret' => 'this is a secret string',
+    ]);
 
-    /** @test */
-    function a_model_can_encrypt_using_eloquent_encryption()
-    {
+    expect($subject->secret)->toBe('this is a secret string');
 
-        $this->eloquentEncryption->expects('encrypt')
-            ->with('this is a secret string', false)
-            ->andReturn('encrypted-secret-string');
-        $this->eloquentEncryption->expects('decrypt')
-            ->with('encrypted-secret-string', false)
-            ->andReturn('this is a secret string');
-
-
-        /** @var \Illuminate\Tests\Integration\Database\EncryptedCast $subject */
-        $subject = EncryptedCast::create([
-            'secret' => 'this is a secret string',
-        ]);
-
-        $this->assertSame('this is a secret string', $subject->secret);
-        $this->assertDatabaseHas('encrypted_casts', [
-            'id' => $subject->id,
-            'secret' => 'encrypted-secret-string',
-        ]);
-    }
-}
+    $this->assertDatabaseHas('encrypted_casts', [
+        'id' => $subject->id,
+        'secret' => 'encrypted-secret-string',
+    ]);
+});
 
 /**
  * @property $secret
@@ -98,6 +68,7 @@ class ModelCustomEncryptorTest extends TestCase
 class EncryptedCast extends Model
 {
     public $timestamps = false;
+
     protected $guarded = [];
 
     public $casts = [

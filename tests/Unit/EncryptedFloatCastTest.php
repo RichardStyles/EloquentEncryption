@@ -1,64 +1,80 @@
 <?php
 
-
-namespace RichardStyles\EloquentEncryption\Tests\Unit;
-
 use Illuminate\Foundation\Auth\User;
 use RichardStyles\EloquentEncryption\Casts\EncryptedFloat;
 use RichardStyles\EloquentEncryption\EloquentEncryptionFacade;
-use RichardStyles\EloquentEncryption\Tests\TestCase;
 
-class EncryptedFloatCastTest extends TestCase
-{
-    /** @test */
-    function encrypted_float_cast_decrypts_values()
-    {
-        EloquentEncryptionFacade::shouldReceive('exists')
-            ->andReturn(true)
-            ->shouldReceive('decryptString')
-            ->with('001100110011')
-            ->andReturn('1.245');
+test('encrypted float cast decrypts values', function () {
+    EloquentEncryptionFacade::shouldReceive('exists')
+        ->andReturn(true)
+        ->shouldReceive('decryptString')
+        ->with('001100110011')
+        ->andReturn('1.245');
 
-        $cast = new EncryptedFloat();
-        $user = new User();
+    $cast = new EncryptedFloat;
+    $user = new User;
 
-        $response = $cast->get($user, 'encrypted', '001100110011', []);
+    $response = $cast->get($user, 'encrypted', '001100110011', []);
 
-        $this->assertIsFloat($response);
-        $this->assertEquals(1.245, $response);
-    }
+    expect($response)->toBeFloat();
+    expect($response)->toBe(1.245);
+});
 
-    /** @test */
-    function encrypted_float_cast_encrypts_values()
-    {
-        EloquentEncryptionFacade::partialMock()
-            ->shouldReceive('exists')
-            ->andReturn(true)
-            ->shouldReceive('encryptString')
-            ->with(1.245)
-            ->andReturn('001100110011');
+test('encrypted float cast encrypts values', function () {
+    EloquentEncryptionFacade::partialMock()
+        ->shouldReceive('exists')
+        ->andReturn(true)
+        ->shouldReceive('encryptString')
+        ->with(1.245)
+        ->andReturn('001100110011');
 
-        $cast = new EncryptedFloat();
-        $user = new User();
+    $cast = new EncryptedFloat;
+    $user = new User;
 
-        $this->assertEquals('001100110011', $cast->set($user, 'encrypted', 1.245, []));
-    }
+    expect($cast->set($user, 'encrypted', 1.245, []))->toBe('001100110011');
+});
 
-    /** @test */
-    function decrypting_inf_float()
-    {
-        EloquentEncryptionFacade::shouldReceive('exists')
-            ->andReturn(true)
-            ->shouldReceive('decryptString')
-            ->with('001100110011')
-            ->andReturn(INF);
+test('decrypting inf float', function () {
+    EloquentEncryptionFacade::shouldReceive('exists')
+        ->andReturn(true)
+        ->shouldReceive('decryptString')
+        ->with('001100110011')
+        ->andReturn('Infinity');
 
-        $cast = new EncryptedFloat();
-        $user = new User();
+    $cast = new EncryptedFloat;
+    $user = new User;
 
-        $response = $cast->get($user, 'encrypted', '001100110011', []);
+    $response = $cast->get($user, 'encrypted', '001100110011', []);
 
-        $this->assertEquals(INF, $response);
-    }
+    expect($response)->toBe(INF);
+});
 
-}
+test('decrypting negative inf float', function () {
+    EloquentEncryptionFacade::shouldReceive('exists')
+        ->andReturn(true)
+        ->shouldReceive('decryptString')
+        ->with('001100110011')
+        ->andReturn('-Infinity');
+
+    $cast = new EncryptedFloat;
+    $user = new User;
+
+    $response = $cast->get($user, 'encrypted', '001100110011', []);
+
+    expect($response)->toBe(-INF);
+});
+
+test('decrypting NaN float', function () {
+    EloquentEncryptionFacade::shouldReceive('exists')
+        ->andReturn(true)
+        ->shouldReceive('decryptString')
+        ->with('001100110011')
+        ->andReturn('NaN');
+
+    $cast = new EncryptedFloat;
+    $user = new User;
+
+    $response = $cast->get($user, 'encrypted', '001100110011', []);
+
+    expect($response)->toBeNan();
+});

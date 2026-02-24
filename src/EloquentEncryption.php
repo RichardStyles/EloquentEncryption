@@ -1,107 +1,90 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RichardStyles\EloquentEncryption;
 
 use Illuminate\Contracts\Encryption\Encrypter;
 use Illuminate\Support\Facades\Config;
-use phpseclib\Crypt\RSA;
+use RichardStyles\EloquentEncryption\Contracts\EncryptionHandler;
 use RichardStyles\EloquentEncryption\Contracts\RsaKeyHandler;
 use RichardStyles\EloquentEncryption\Exceptions\InvalidRsaKeyHandler;
-use RichardStyles\EloquentEncryption\Exceptions\RSAKeyFileMissing;
 use RichardStyles\EloquentEncryption\FileSystem\RsaKeyStorageHandler;
+use RichardStyles\EloquentEncryption\Handlers\RsaHandler;
 
 class EloquentEncryption implements Encrypter
 {
+    /**
+     * The key storage handler (manages key files)
+     */
+    private RsaKeyHandler $storage;
 
     /**
-     * @var RsaKeyHandler
+     * The encryption handler (performs crypto)
      */
-    private $handler;
+    private EncryptionHandler $encryptor;
 
-    /**
-     * ApplicationKey constructor.
-     */
     public function __construct()
     {
-        $this->handler = app()->make(
+        $storage = app()->make(
             Config::get('eloquent_encryption.handler', RsaKeyStorageHandler::class)
         );
 
-        if (!$this->handler instanceof RsaKeyHandler) {
+        if (! $storage instanceof RsaKeyHandler) {
             throw new InvalidRsaKeyHandler;
         }
+
+        $this->storage = $storage;
+
+        $encryptorClass = Config::get('eloquent_encryption.encryptor', RsaHandler::class);
+        $this->encryptor = new $encryptorClass($this->storage);
     }
 
     /**
-     * Have any RSA keys been generated
-     *
-     * @return bool
+     * Have any encryption keys been generated
      */
-    public function exists()
+    public function exists(): bool
     {
-        return $this->handler->exists();
+        return $this->storage->exists();
     }
 
     /**
-     * Generate a set of RSA Keys which will be used to encrypt the database fields
+     * Generate a set of encryption keys
      */
-    public function makeEncryptionKeys()
+    public function makeEncryptionKeys(): void
     {
-        $key = $this->createKey(Config::get('eloquent_encryption.key.email'));
-        $this->handler->saveKey($key['publickey'], $key['privatekey']);
+        $key = $this->encryptor->createKeys(Config::get('eloquent_encryption.key.email', ''));
+        $this->storage->saveKey($key['publickey'], $key['privatekey']);
     }
 
     /**
-     * Create a digital set of RSA keys, defaulting to 4096-bit
+     * Create a new key pair (delegates to encryption handler)
      *
-     * @param string $email
-     * @return array
+     * @param  string  $email
+     * @return array{publickey: string, privatekey: string}
      */
-    public function createKey($email = '')
+    public function createKey($email = ''): array
     {
-        $rsa = new RSA();
-        $rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_OPENSSH);
-        $rsa->setComment($email);
-
-        return $rsa->createKey(Config::get('eloquent_encryption.key.length', 4096));
+        return $this->encryptor->createKeys($email);
     }
 
     /**
-     * Helper function to ensure RSA options match for encrypting/decrypting
+     * Encrypt a value
      *
-     * @param $key
-     * @return RSA
-     */
-    private function getRsa($key)
-    {
-        $rsa = new RSA();
-        $rsa->loadKey($key);
-        $rsa->setEncryptionMode(RSA::ENCRYPTION_OAEP);
-
-        return $rsa;
-    }
-
-    /**
-     * Encrypt a value using the RSA key
-     *
-     * @param $value
-     * @param bool $serialize
-     * @return false|string
-     * @throws RSAKeyFileMissing
+     * @param  mixed  $value
+     * @param  bool  $serialize
+     * @return string
      */
     public function encrypt($value, $serialize = true)
     {
-        return $this->getRsa($this->handler->getPublicKey())
-            ->encrypt($serialize ? serialize($value) : $value);
+        return $this->encryptor->encrypt($serialize ? serialize($value) : $value);
     }
 
     /**
      * Encrypt a string without serialization.
      *
-     * @param string $value
+     * @param  string  $value
      * @return string
-     *
-     * @throws RSAKeyFileMissing
      */
     public function encryptString($value)
     {
@@ -109,12 +92,11 @@ class EloquentEncryption implements Encrypter
     }
 
     /**
-     * Decrypt a value using the RSA key
+     * Decrypt a value
      *
-     * @param $value
-     * @param bool $unserialize
-     * @return false|string|null
-     * @throws RSAKeyFileMissing
+     * @param  mixed  $value
+     * @param  bool  $unserialize
+     * @return mixed
      */
     public function decrypt($value, $unserialize = true)
     {
@@ -122,8 +104,7 @@ class EloquentEncryption implements Encrypter
             return null;
         }
 
-        $decrypted = $this->getRsa($this->handler->getPrivateKey())
-            ->decrypt($value);
+        $decrypted = $this->encryptor->decrypt($value);
 
         return $unserialize ? unserialize($decrypted) : $decrypted;
     }
@@ -131,21 +112,24 @@ class EloquentEncryption implements Encrypter
     /**
      * Decrypt the given string without unserialization.
      *
-     * @param string $payload
+     * @param  string  $payload
      * @return string
-     *
-     * @throws RSAKeyFileMissing
      */
     public function decryptString($payload)
     {
         return $this->decrypt($payload, false);
     }
 
-    public function __call($name, $arguments)
+    /**
+     * @param  array<int, mixed>  $arguments
+     */
+    public function __call(string $name, array $arguments): mixed
     {
-        if (method_exists($this->handler, $name)) {
-            return $this->handler->{$name}($arguments);
+        if (method_exists($this->storage, $name)) {
+            return $this->storage->{$name}($arguments);
         }
+
+        return null;
     }
 
     /**
@@ -155,6 +139,38 @@ class EloquentEncryption implements Encrypter
      */
     public function getKey()
     {
-        return $this->handler->getPrivateKey();
+        return $this->storage->getPrivateKey();
+    }
+
+    /**
+     * Get all encryption keys including the current and previous keys.
+     *
+     * @return array<int, string>
+     */
+    public function getAllKeys(): array
+    {
+        return array_merge(
+            [$this->getKey()],
+            $this->getPreviousKeys()
+        );
+    }
+
+    /**
+     * Get the previous / old encryption keys.
+     *
+     * @return array<int, string>
+     */
+    public function getPreviousKeys(): array
+    {
+        return $this->storage->getPreviousPrivateKeys();
+    }
+
+    /**
+     * Rotate encryption keys: generate new keys and move current to previous
+     */
+    public function rotateKeys(): void
+    {
+        $newKeys = $this->encryptor->createKeys(Config::get('eloquent_encryption.key.email', ''));
+        $this->storage->rotateKeys($newKeys['publickey'], $newKeys['privatekey']);
     }
 }

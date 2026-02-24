@@ -1,25 +1,26 @@
 <?php
 
+declare(strict_types=1);
 
 namespace RichardStyles\EloquentEncryption\Casts;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use RichardStyles\EloquentEncryption\EloquentEncryptionFacade;
 
+/**
+ * @implements CastsAttributes<mixed, mixed>
+ */
 class Encrypted implements CastsAttributes
 {
     /**
      * Cast the given value and decrypt
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  string  $key
-     * @param  mixed  $value
-     * @param  array  $attributes
-     * @return array
+     * @param  array<string, mixed>  $attributes
      */
-    public function get($model, $key, $value, $attributes)
+    public function get(mixed $model, string $key, mixed $value, array $attributes): mixed
     {
-        if(is_null($value)){
+        if (is_null($value)) {
             return null;
         }
 
@@ -30,14 +31,11 @@ class Encrypted implements CastsAttributes
      * Prepare the given value for storage.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  string  $key
-     * @param  array  $value
-     * @param  array  $attributes
-     * @return string
+     * @param  array<string, mixed>  $attributes
      */
-    public function set($model, $key, $value, $attributes)
+    public function set(mixed $model, string $key, mixed $value, array $attributes): mixed
     {
-        if(is_null($value)){
+        if (is_null($value)) {
             return null;
         }
 
