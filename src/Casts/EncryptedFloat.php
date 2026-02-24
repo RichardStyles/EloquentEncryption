@@ -10,12 +10,9 @@ class EncryptedFloat extends Encrypted
      * Cast the given value and decrypt
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  string  $key
-     * @param  mixed  $value
-     * @param  array  $attributes
-     * @return int
+     * @param  array<string, mixed>  $attributes
      */
-    public function get($model, $key, $value, $attributes)
+    public function get(mixed $model, string $key, mixed $value, array $attributes): float
     {
         return $this->fromFloat(parent::get($model, $key, $value, $attributes));
     }
@@ -24,12 +21,9 @@ class EncryptedFloat extends Encrypted
      * Prepare the given value for storage.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  string  $key
-     * @param  float  $value
-     * @param  array  $attributes
-     * @return string
+     * @param  array<string, mixed>  $attributes
      */
-    public function set($model, $key, $value, $attributes)
+    public function set(mixed $model, string $key, mixed $value, array $attributes): mixed
     {
         return parent::set($model, $key, $value, $attributes);
     }
@@ -38,9 +32,8 @@ class EncryptedFloat extends Encrypted
      * Decode the given float.
      *
      * @param  mixed  $value
-     * @return mixed
      */
-    public function fromFloat($value)
+    public function fromFloat($value): float
     {
         switch ((string) $value) {
             case 'Infinity':

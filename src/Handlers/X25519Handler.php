@@ -54,6 +54,8 @@ class X25519Handler implements EncryptionHandler
         $ephemeralPublicRaw = $ephemeralPrivate->getPublicKey()->toString('MontgomeryPublic');
 
         // ECDH key agreement
+        /** @var string $sharedSecret */
+        /** @phpstan-ignore-next-line phpseclib3 DH::computeSecret accepts EC keys for curve25519 */
         $sharedSecret = DH::computeSecret($ephemeralPrivate, $storedPublic);
 
         // Derive AES-256 key from shared secret
@@ -93,6 +95,8 @@ class X25519Handler implements EncryptionHandler
         $ephemeralPublic = EC::loadFormat('MontgomeryPublic', $ephemeralPublicRaw);
 
         // ECDH key agreement (same shared secret as encryption)
+        /** @var string $sharedSecret */
+        /** @phpstan-ignore-next-line phpseclib3 DH::computeSecret accepts EC keys for curve25519 */
         $sharedSecret = DH::computeSecret($storedPrivate, $ephemeralPublic);
 
         // Derive same AES key

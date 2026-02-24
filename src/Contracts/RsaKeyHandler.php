@@ -32,7 +32,7 @@ interface RsaKeyHandler
     /**
      * Save the generated key pair to the storage location
      */
-    public function saveKey($public, $private);
+    public function saveKey(string $public, string $private): void;
 
     /**
      * Get the contents of the public key file
@@ -56,6 +56,8 @@ interface RsaKeyHandler
      * Get all previous public keys
      *
      * @deprecated Use getPreviousKeys() instead for structured key pairs
+     *
+     * @return array<int, string>
      */
     public function getPreviousPublicKeys(): array;
 
@@ -63,6 +65,8 @@ interface RsaKeyHandler
      * Get all previous private keys
      *
      * @deprecated Use getPreviousKeys() instead for structured key pairs
+     *
+     * @return array<int, string>
      */
     public function getPreviousPrivateKeys(): array;
 

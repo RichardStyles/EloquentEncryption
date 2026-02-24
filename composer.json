@@ -23,6 +23,7 @@
         "phpseclib/phpseclib": "^3.0"
     },
     "require-dev": {
+        "larastan/larastan": "^3.9",
         "laravel/pint": "^1.0",
         "orchestra/testbench": "^9.0||^10.0",
         "pestphp/pest": "^2.0||^3.0",
@@ -42,7 +43,8 @@
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage --coverage-html=coverage",
         "lint": "vendor/bin/pint",
-        "lint:test": "vendor/bin/pint --test"
+        "lint:test": "vendor/bin/pint --test",
+        "analyse": "vendor/bin/phpstan analyse"
     },
     "config": {
         "sort-packages": true,

@@ -43,7 +43,7 @@ class EloquentEncryption implements Encrypter
     /**
      * Have any encryption keys been generated
      */
-    public function exists()
+    public function exists(): bool
     {
         return $this->storage->exists();
     }
@@ -51,7 +51,7 @@ class EloquentEncryption implements Encrypter
     /**
      * Generate a set of encryption keys
      */
-    public function makeEncryptionKeys()
+    public function makeEncryptionKeys(): void
     {
         $key = $this->encryptor->createKeys(Config::get('eloquent_encryption.key.email', ''));
         $this->storage->saveKey($key['publickey'], $key['privatekey']);
@@ -61,9 +61,9 @@ class EloquentEncryption implements Encrypter
      * Create a new key pair (delegates to encryption handler)
      *
      * @param  string  $email
-     * @return array
+     * @return array{publickey: string, privatekey: string}
      */
-    public function createKey($email = '')
+    public function createKey($email = ''): array
     {
         return $this->encryptor->createKeys($email);
     }
@@ -120,11 +120,16 @@ class EloquentEncryption implements Encrypter
         return $this->decrypt($payload, false);
     }
 
-    public function __call($name, $arguments)
+    /**
+     * @param  array<int, mixed>  $arguments
+     */
+    public function __call(string $name, array $arguments): mixed
     {
         if (method_exists($this->storage, $name)) {
             return $this->storage->{$name}($arguments);
         }
+
+        return null;
     }
 
     /**
@@ -140,9 +145,9 @@ class EloquentEncryption implements Encrypter
     /**
      * Get all encryption keys including the current and previous keys.
      *
-     * @return array
+     * @return array<int, string>
      */
-    public function getAllKeys()
+    public function getAllKeys(): array
     {
         return array_merge(
             [$this->getKey()],
@@ -153,9 +158,9 @@ class EloquentEncryption implements Encrypter
     /**
      * Get the previous / old encryption keys.
      *
-     * @return array
+     * @return array<int, string>
      */
-    public function getPreviousKeys()
+    public function getPreviousKeys(): array
     {
         return $this->storage->getPreviousPrivateKeys();
     }
@@ -163,7 +168,7 @@ class EloquentEncryption implements Encrypter
     /**
      * Rotate encryption keys: generate new keys and move current to previous
      */
-    public function rotateKeys()
+    public function rotateKeys(): void
     {
         $newKeys = $this->encryptor->createKeys(Config::get('eloquent_encryption.key.email', ''));
         $this->storage->rotateKeys($newKeys['publickey'], $newKeys['privatekey']);

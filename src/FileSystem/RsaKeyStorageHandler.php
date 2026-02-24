@@ -76,7 +76,7 @@ class RsaKeyStorageHandler implements RsaKeyHandler
     /**
      * Save the generated RSA key to the storage location
      */
-    public function saveKey($public, $private)
+    public function saveKey(string $public, string $private): void
     {
         Storage::put($this->public_key_path, $public);
         Storage::put($this->private_key_path, $private);
@@ -118,6 +118,8 @@ class RsaKeyStorageHandler implements RsaKeyHandler
      * Get all previous public keys
      *
      * @deprecated Use getPreviousKeys() instead for structured key pairs
+     *
+     * @return array<int, string>
      */
     public function getPreviousPublicKeys(): array
     {
@@ -138,6 +140,8 @@ class RsaKeyStorageHandler implements RsaKeyHandler
      * Get all previous private keys
      *
      * @deprecated Use getPreviousKeys() instead for structured key pairs
+     *
+     * @return array<int, string>
      */
     public function getPreviousPrivateKeys(): array
     {
@@ -247,6 +251,8 @@ class RsaKeyStorageHandler implements RsaKeyHandler
 
     /**
      * Get metadata from file or fall back to config
+     *
+     * @return array{current: array{public: string, private: string}, previous: array<int, array{public: string, private: string, rotated_at?: string}>}
      */
     private function getMetadata(): array
     {
@@ -275,6 +281,8 @@ class RsaKeyStorageHandler implements RsaKeyHandler
 
     /**
      * Save metadata to file
+     *
+     * @param  array{current: array{public: string, private: string}, previous: array<int, array{public: string, private: string, rotated_at?: string}>}  $metadata
      */
     private function saveMetadata(array $metadata): void
     {

@@ -29,10 +29,6 @@ class RsaHandler implements EncryptionHandler
         $keyLength = Config::get('eloquent_encryption.key.length', 4096);
         $privateKey = RSA::createKey($keyLength);
 
-        if (! empty($email)) {
-            $privateKey = $privateKey->withComment($email);
-        }
-
         $publicKey = $privateKey->getPublicKey();
 
         return [
@@ -46,7 +42,10 @@ class RsaHandler implements EncryptionHandler
      */
     public function encrypt(string $plaintext): string
     {
-        return $this->loadKey($this->storage->getPublicKey())->encrypt($plaintext);
+        /** @var \phpseclib3\Crypt\RSA\PublicKey $key */
+        $key = $this->loadKey($this->storage->getPublicKey());
+
+        return $key->encrypt($plaintext);
     }
 
     /**
@@ -60,14 +59,25 @@ class RsaHandler implements EncryptionHandler
      */
     protected function decryptWithPrivateKey(string $payload, string $privateKey): string
     {
-        return $this->loadKey($privateKey)->decrypt($payload);
+        /** @var \phpseclib3\Crypt\RSA\PrivateKey $key */
+        $key = $this->loadKey($privateKey);
+
+        return $key->decrypt($payload);
     }
 
     /**
      * Load an RSA key with OAEP padding
+     *
+     * @return \phpseclib3\Crypt\RSA\PrivateKey|\phpseclib3\Crypt\RSA\PublicKey
      */
     private function loadKey(string $key)
     {
-        return PublicKeyLoader::load($key)->withPadding(RSA::ENCRYPTION_OAEP);
+        $loaded = PublicKeyLoader::load($key);
+
+        /** @var \phpseclib3\Crypt\RSA\PrivateKey|\phpseclib3\Crypt\RSA\PublicKey $loaded */
+        /** @phpstan-ignore-next-line method exists in phpseclib3 but not detected by static analysis */
+        $loaded = $loaded->withPadding(RSA::ENCRYPTION_OAEP);
+
+        return $loaded;
     }
 }

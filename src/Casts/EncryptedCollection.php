@@ -13,14 +13,12 @@ class EncryptedCollection extends Encrypted
      * Cast the given value and decrypt
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  string  $key
-     * @param  mixed  $value
-     * @param  array  $attributes
-     * @return Collection
+     * @param  array<string, mixed>  $attributes
+     * @return Collection<int|string, mixed>
      */
-    public function get($model, $key, $value, $attributes)
+    public function get(mixed $model, string $key, mixed $value, array $attributes): Collection
     {
-        /** @var string $decrypted */
+        /** @var string|null $decrypted */
         $decrypted = parent::get($model, $key, $value, $attributes);
 
         if ($decrypted === null) {
@@ -34,12 +32,9 @@ class EncryptedCollection extends Encrypted
      * Prepare the given value for storage.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  string  $key
-     * @param  array  $value
-     * @param  array  $attributes
-     * @return string
+     * @param  array<string, mixed>  $attributes
      */
-    public function set($model, $key, $value, $attributes)
+    public function set(mixed $model, string $key, mixed $value, array $attributes): mixed
     {
         if ($value instanceof Collection) {
             $value = $value->toJson();
